@@ -13,9 +13,9 @@ const int map_offset_x = 25, map_offset_y = 50;			// pixel offset of where to st
 const int four_probe[4][2] = {{ 1, 0 }, { 0, 1 }, { -1,0 }, { 0, -1 }};
 
 /* Declare static function prototypes. */
-static void draw_block_index(const Map* M, int row, int col);
-static void draw_bean(const Map* M, const int row, const int col);
-static void draw_power_bean(const Map* M, const int row, const int col);
+static void draw_block_index(const Map* M, int row, int col, const Pair_IntInt position);
+static void draw_bean(const Map* M, const Pair_IntInt position);
+static void draw_power_bean(const Map* M, const Pair_IntInt position);
 
 const char* nthu_map[] = {
 	"#####################################",
@@ -180,28 +180,52 @@ void delete_map(Map* M) {
 	free(M);
 }
 
-void draw_submap(const Submap *submap){
+void draw_submap(const Submap *submap, int centered){
     if (submap->point == NULL){
         game_abort("error map!\n");
         return;
     }
-    for (int row = submap->offset.y; row < submap->row_num + submap->offset.y; ++row){
-        for (int col = submap->offset.x; col < submap->col_num + submap->offset.x; ++col) {
-            switch (submap->point->map[row][col])
-			{
-				case '#':
-					draw_block_index(submap->point, row, col);
-					break;
-				// TODO-PB: draw the power bean
-				case 'P':
-					draw_power_bean(submap->point, row, col);
-					break;
-				case '.':
-					draw_bean(submap->point, row, col);
-					break;
-				default:
-					break;
-			}
+    if (centered){
+        Pair_IntInt position;
+        for (int row = submap->offset.y; row < submap->row_num + submap->offset.y; ++row){
+            for (int col = submap->offset.x; col < submap->col_num + submap->offset.x; ++col) {
+                position = make_pair(col - submap->offset.x, row - submap->offset.y);
+                switch (submap->point->map[row][col])
+                {
+                    case '#':
+                        draw_block_index(submap->point, row, col, position);
+                        break;
+                    // TODO-PB: draw the power bean
+                    case 'P':
+                        draw_power_bean(submap->point, position);
+                        break;
+                    case '.':
+                        draw_bean(submap->point, position);
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+    } else {
+        for (int row = submap->offset.y; row < submap->row_num + submap->offset.y; ++row){
+            for (int col = submap->offset.x; col < submap->col_num + submap->offset.x; ++col) {
+                switch (submap->point->map[row][col])
+                {
+                    case '#':
+                        draw_block_index(submap->point, row, col, make_pair(row, col));
+                        break;
+                    // TODO-PB: draw the power bean
+                    case 'P':
+                        draw_power_bean(submap->point, make_pair(row, col));
+                        break;
+                    case '.':
+                        draw_bean(submap->point, make_pair(row, col));
+                        break;
+                    default:
+                        break;
+                }
+            }
         }
     }
 }
@@ -217,14 +241,14 @@ void draw_map(Map const* M) {
 			switch (M->map[row][col])
 			{
 				case '#':
-					draw_block_index(M, row, col);
+					draw_block_index(M, row, col, make_pair(row, col));
 					break;
 				// TODO-PB: draw the power bean
 				case 'P':
-					draw_power_bean(M, row, col);
+					draw_power_bean(M, make_pair(row, col));
 					break;
 				case '.':
-					draw_bean(M, row, col);
+					draw_bean(M, make_pair(row, col));
 					break;
 				default:
 					break;
@@ -233,7 +257,7 @@ void draw_map(Map const* M) {
 	}
 }
 
-static void draw_block_index(const Map* M, const int row, const int col) {
+static void draw_block_index(const Map* M, const int row, const int col, const Pair_IntInt position) {
 	bool U = is_wall_block(M, col, row - 1);
 	bool UR = is_wall_block(M, col + 1, row - 1);
 	bool UL = is_wall_block(M, col -1, row- 1);
@@ -244,8 +268,8 @@ static void draw_block_index(const Map* M, const int row, const int col) {
 	bool L = is_wall_block(M, col - 1,row);
 	if (!(U && UR && UL && B && BR && BL && R && L)) {
 	int s_x, s_y, e_x, e_y, dw;
-	int block_x = map_offset_x + block_width * col;
-	int block_y = map_offset_y + block_height * row;
+	int block_x = map_offset_x + block_width * position.x;
+	int block_y = map_offset_y + block_height * position.y;
 	dw = block_width / 3;
 		s_x = block_x + dw;
 		s_y = block_y+ dw;
@@ -290,12 +314,12 @@ static void draw_block_index(const Map* M, const int row, const int col) {
 	}
 }
 
-static void draw_bean(const Map* M, const int row, const int col) {
-	al_draw_filled_circle(map_offset_x + col * block_width + block_width / 2.0, map_offset_y + row * block_height + block_height / 2.0, block_width/6.0,  al_map_rgb(234, 38, 38));
+static void draw_bean(const Map* M, const Pair_IntInt position) {
+	al_draw_filled_circle(map_offset_x + position.x * block_width + block_width / 2.0, map_offset_y + position.y * block_height + block_height / 2.0, block_width/6.0,  al_map_rgb(234, 38, 38));
 }
 
-static void draw_power_bean(const Map* M, const int row, const int col) {
-	al_draw_filled_circle(map_offset_x + col * block_width + block_width / 2.0, map_offset_y + row * block_height + block_height / 2.0, block_width / 3.0, al_map_rgb(234, 178, 38));
+static void draw_power_bean(const Map* M, const Pair_IntInt position) {
+	al_draw_filled_circle(map_offset_x + position.x * block_width + block_width / 2.0, map_offset_y + position.y * block_height + block_height / 2.0, block_width / 3.0, al_map_rgb(234, 178, 38));
 }
 
 

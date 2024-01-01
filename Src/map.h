@@ -26,7 +26,7 @@ void delete_submap(Submap*);
 void delete_map(Map*);
 
 void draw_map(const Map*);
-void draw_submap(const Submap*);
+void draw_submap(const Submap*, int centered);
 void update_submap(Submap* submap, Pair_IntInt position, Pair_IntInt distance);
 //void draw_block(Map*, RecArea);
 Directions shortest_distance(Map* M, int startGridx, int startGridy, int endGridx, int endGridy);

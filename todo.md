@@ -1,7 +1,6 @@
 # bug:
 
 ghost movement seems kinda random (perfect)
-- facing position is wrong
 
 ---
 
@@ -19,7 +18,7 @@ Type: Clyde
     They are dangerous and will come to you most of the time.
     If you can't runaway, try to face them.
 Type: Blinky
-    They are deadly, run as fast as you can.
+    They are deadly, run as fast as you can. If you don't have any power beans upon seeing them, it is your doom.
 
 ---
 
@@ -32,6 +31,12 @@ Type: Blinky
     - scary?
 - scoreboard
 - let ghost out one by one
+- smaller view map instead of all
+    - map (done)
+    - ghost
+    - pacman
+    - new submap
+    - maybe fix debug mode?
 
 ---
 
@@ -39,7 +44,7 @@ Type: Blinky
 
 - speed up?
 - broken effect?
-- a long map
+- use a large single map instead
 
 goal:
  clear the map ->
