@@ -84,9 +84,18 @@ void ghost_destory(Ghost* ghost) {
 
     free(ghost);
 }
-void ghost_draw(Ghost* ghost, Submap* view) {
-	RecArea drawArea = getDrawArea((object*)ghost, GAME_TICK_CD);
-    if (drawArea.x < 0 || drawArea.y < 0) return;
+void ghost_draw(Ghost* ghost, Submap* view, Submap* submap) {
+    object fixed;
+    fixed.Size = ghost->objData.Size;
+    fixed.moveCD = ghost->objData.moveCD;
+    fixed.preMove = ghost->objData.preMove;
+    fixed.Coord.x = ghost->objData.Coord.x - submap->offset.x;
+    fixed.Coord.y = ghost->objData.Coord.y - submap->offset.y;
+    if (fixed.Coord.x < 0 || fixed.Coord.y < 0 ||
+        fixed.Coord.x >= submap->offset.x + submap->col_num ||
+        fixed.Coord.y >= submap->offset.y + submap->row_num)
+        return;
+	RecArea drawArea = getDrawArea(&fixed, GAME_TICK_CD);
 
 	//Draw default image
 	int bitmap_x_offset = 0;
