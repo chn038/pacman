@@ -4,8 +4,6 @@
 #include "map.h"
 /* Static variables */
 static const int start_grid_x = 25, start_grid_y = 25;		// where to put pacman at the beginning
-static const int fix_draw_pixel_offset_x = -3, fix_draw_pixel_offset_y = -3;  // draw offset 
-static const int draw_region = 30;							// pacman bitmap draw region
 static ALLEGRO_SAMPLE_ID PACMAN_MOVESOUND_ID;
 // [ NOTE - speed ]
 // If you want to implement something regarding speed.
@@ -40,6 +38,9 @@ static bool pacman_movable(const Pacman* pacman, const Map* M, Directions target
             break;
         case RIGHT:
             dx = 1, dy = 0;
+            break;
+        case NONE:
+            dx = 0, dy = 0;
             break;
         default:
             return false;
@@ -83,9 +84,16 @@ void pacman_destroy(Pacman* pman) {
 }
 
 
-void pacman_draw(Pacman* pman, Submap *view) {
-	// hint: use pman->objData.moveCD to determine which frame of the animation to draw
-	RecArea drawArea = getDrawArea((object *)pman, GAME_TICK_CD);
+void pacman_draw(Pacman* pman, Submap *view, Submap *submap) {
+	
+    object fixed;
+    fixed.Size = pman->objData.Size;
+    fixed.moveCD = pman->objData.moveCD;
+    fixed.preMove = pman->objData.preMove;
+    fixed.Coord.x = pman->objData.Coord.x - submap->offset.x;
+    fixed.Coord.y = pman->objData.Coord.y - submap->offset.y;
+
+	RecArea drawArea = getDrawArea(&fixed, GAME_TICK_CD);
 
 	//Draw default image
     
@@ -111,17 +119,20 @@ void pacman_draw(Pacman* pman, Submap *view) {
 		}
         al_draw_scaled_bitmap(pman->move_sprite, facing + offset, 0,
             16, 16,
-            drawArea.x + fix_draw_pixel_offset_x, drawArea.y + fix_draw_pixel_offset_y,
-            draw_region, draw_region, 0
+            drawArea.x, drawArea.y,
+            block_width, block_height, 0
         );
 	} else {
         int offset = al_get_timer_count(pman->death_anim_counter);
         al_draw_scaled_bitmap(pman->die_sprite, 16*offset, 0,
             16, 16,
-            drawArea.x + fix_draw_pixel_offset_x, drawArea.y + fix_draw_pixel_offset_y,
-            draw_region, draw_region, 0 
+            drawArea.x, drawArea.y,
+            block_width, block_height, 0 
         );
 	}
+}
+void pacman_turn_head(Pacman* pacman, Directions direction){
+    pacman->objData.facing = direction;
 }
 void pacman_move(Pacman* pacman, Map* M) {
 	if (!movetime(pacman->speed))
@@ -130,7 +141,6 @@ void pacman_move(Pacman* pacman, Map* M) {
 		return;
 
 	int probe_x = pacman->objData.Coord.x, probe_y = pacman->objData.Coord.y;
-	pacman->objData.facing = pacman->objData.nextTryMove;
 	if (pacman_movable(pacman, M, pacman->objData.nextTryMove)) 
 		pacman->objData.preMove = pacman->objData.nextTryMove;
 	else if (!pacman_movable(pacman, M, pacman->objData.preMove)) 
@@ -154,6 +164,8 @@ void pacman_move(Pacman* pacman, Map* M) {
 		pacman->objData.Coord.x += 1;
 		pacman->objData.nextTryMove = RIGHT;
 		break;
+    case NONE:
+        pacman->objData.nextTryMove = NONE;
 	default:
 		break;
 	}

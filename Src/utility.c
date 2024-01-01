@@ -3,6 +3,7 @@
 
 #include "utility.h"
 #include "game.h"
+#include "map.h"
 #include <math.h>
 #include <stdlib.h>
 #include <allegro5/allegro_image.h>
@@ -11,9 +12,6 @@
 extern uint32_t GAME_TICK, GAME_TICK_CD;
 const int GridSize = 22;
 float VOLUME = 1.0;
-extern int map_offset_x;
-extern int map_offset_y;
-extern int block_width, block_height;
 Pair_IntInt make_pair(int x, int y){
     Pair_IntInt newpair;
     newpair.x = x;

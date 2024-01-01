@@ -17,7 +17,8 @@ extern const uint32_t GAME_TICK_CD;
 extern uint32_t GAME_TICK;
 extern ALLEGRO_TIMER* game_tick_timer;
 int MAX_GHOST_NUM = 5; 
-Pair_IntInt vision = {10, 4};
+Pair_IntInt vision = {10, 3};
+Pair_IntInt range = {16, 16};
 int game_main_Score = 0;
 int power_counter = 0;
 bool game_over = false;
@@ -27,9 +28,11 @@ static const int power_up_duration = 10;
 static Pacman* pman;
 static Map* basic_map;
 static Submap* view_map;
+static Submap* submap;
 static Ghost** ghosts;
 static uint32_t ghost_count;
 static char warning[50];
+static Pair_IntInt center;
 bool debug_mode = false;
 bool cheat_mode = false;
 
@@ -62,6 +65,11 @@ static void init(void) {
     if (!view_map){
         game_abort("Error creating view_map");
     }
+    submap = create_submap(basic_map, range);
+    if (!submap){
+        game_abort("Error creating submap");
+    }
+    center = make_pair(basic_map->col_num / 2, basic_map->row_num / 2.0);
 
 	pman = pacman_create();
 	if (!pman) {
@@ -74,14 +82,14 @@ static void init(void) {
 	}
 	else {
         ghost_count = 0;
-        ghosts[ghost_count] = ghost_create(ghost_count);  
+        ghosts[ghost_count] = ghost_create(ghost_count, basic_map);  
         if (!ghosts[ghost_count])
             game_abort("error creating ghost\n");
         ghost_count = 1;
 	}
 	GAME_TICK = 0;
-
-    update_submap(view_map, make_pair(pman->objData.Coord.x + 3, pman->objData.Coord.y), vision);
+    update_submap(view_map, make_pair(pman->objData.Coord.x + 3, pman->objData.Coord.y), vision, true);
+    update_submap(submap, make_pair(pman->objData.Coord.x + 3, pman->objData.Coord.y), range, false);
 	render_init_screen();
 	power_up_timer = al_create_timer(1.0f); // 1 tick per second
 	if (!power_up_timer)
@@ -194,7 +202,7 @@ static void status_update(void) {
         newGhost = Inky;
 
     if (basic_map->beansCount - basic_map->beansNum == basic_map->beansCount / MAX_GHOST_NUM * ghost_count){
-        ghosts[ghost_count] = ghost_create(newGhost);
+        ghosts[ghost_count] = ghost_create(newGhost, basic_map);
         if (!ghosts[ghost_count]){
             game_log("Failed to create ghost %d", ghost_count);
         }
@@ -250,7 +258,8 @@ static void update(void) {
         dire.y = vision.y;
         break;
     }
-    update_submap(view_map, make_pair(pman->objData.Coord.x + offset.x, pman->objData.Coord.y + offset.y), dire);
+    update_submap(view_map, make_pair(pman->objData.Coord.x + offset.x, pman->objData.Coord.y + offset.y), dire, true);
+    update_submap(submap, make_pair(pman->objData.Coord.x + offset.x, pman->objData.Coord.y + offset.y), range, false);
 }
 
 static void draw(void) {
@@ -265,23 +274,23 @@ static void draw(void) {
     sprintf(progress_indicator, "LEFT: %d", basic_map->beansNum);
     sprintf(powerup, "(E)Power Up: %d", power_counter);
 
-    al_draw_text(menuFont, al_map_rgb(255, 255, 255), (double)block_width*basic_map->col_num/2, block_height*basic_map->row_num + map_offset_y, ALLEGRO_ALIGN_CENTER, scoreboard); 
-    al_draw_text(menuFont, al_map_rgb(255, 255, 255), (double)block_width*basic_map->col_num/2, block_height*basic_map->row_num + map_offset_y + fontSize, ALLEGRO_ALIGN_CENTER, progress_indicator); 
-        al_draw_text(menuFont, al_map_rgb(255, 255, 255), block_width*basic_map->col_num - (fontSize * 5), block_height*basic_map->row_num + map_offset_y , ALLEGRO_ALIGN_CENTER, powerup); 
+    al_draw_text(menuFont, al_map_rgb(255, 255, 255), (double)block_width*submap->col_num/2, block_height*submap->row_num + map_offset_y, ALLEGRO_ALIGN_CENTER, scoreboard); 
+    al_draw_text(menuFont, al_map_rgb(255, 255, 255), (double)block_width*submap->col_num/2, block_height*submap->row_num + map_offset_y + fontSize, ALLEGRO_ALIGN_CENTER, progress_indicator); 
+        al_draw_text(menuFont, al_map_rgb(255, 255, 255), block_width*submap->col_num - (fontSize * 5), block_height*submap->row_num + map_offset_y , ALLEGRO_ALIGN_CENTER, powerup); 
     if (cheat_mode)
-        al_draw_text(menuFont, al_map_rgb(255, 255, 255), fontSize * 5, block_height*basic_map->row_num + map_offset_y, ALLEGRO_ALIGN_CENTER, "Cheat Mode"); 
+        al_draw_text(menuFont, al_map_rgb(255, 255, 255), fontSize * 5, block_height*submap->row_num + map_offset_y, ALLEGRO_ALIGN_CENTER, "Cheat Mode"); 
     if (debug_mode)
-        al_draw_text(menuFont, al_map_rgb(255, 255, 255), fontSize * 5, block_height*basic_map->row_num + map_offset_y + fontSize, ALLEGRO_ALIGN_CENTER, "Debug Mode"); 
+        al_draw_text(menuFont, al_map_rgb(255, 255, 255), fontSize * 5, block_height*submap->row_num + map_offset_y + fontSize, ALLEGRO_ALIGN_CENTER, "Debug Mode"); 
     
 
-    draw_submap(view_map);
+    draw_submap(view_map, submap->offset);
 
-	pacman_draw(pman, view_map);
+	pacman_draw(pman, view_map, submap);
 	if (game_over)
 		return;
 	// no drawing below when game over
 	for (int i = 0; i < ghost_count; i++)
-		ghost_draw(ghosts[i], view_map);
+		ghost_draw(ghosts[i], view_map, submap);
 	
 	//debugging mode
 	if (debug_mode) {
@@ -291,7 +300,13 @@ static void draw(void) {
 }
 
 static void draw_hitboxes(void) {
-	RecArea pmanHB = getDrawArea((object *)pman, GAME_TICK_CD);
+    object fixed;
+    fixed.Size = pman->objData.Size;
+    fixed.moveCD = pman->objData.moveCD;
+    fixed.preMove = pman->objData.preMove;
+    fixed.Coord.x = pman->objData.Coord.x - submap->offset.x;
+    fixed.Coord.y = pman->objData.Coord.y - submap->offset.y;
+	RecArea pmanHB = getDrawArea(&fixed, GAME_TICK_CD);
 	al_draw_rectangle(
 		pmanHB.x, pmanHB.y,
 		pmanHB.x + pmanHB.w, pmanHB.y + pmanHB.h,
@@ -299,7 +314,13 @@ static void draw_hitboxes(void) {
 	);
 
 	for (int i = 0; i < ghost_count; i++) {
-		RecArea ghostHB = getDrawArea((object *)ghosts[i], GAME_TICK_CD);
+        if (!ghosts[i]->drawn) continue;
+        fixed.Size = ghosts[i]->objData.Size;
+        fixed.moveCD = ghosts[i]->objData.moveCD;
+        fixed.preMove = ghosts[i]->objData.preMove;
+        fixed.Coord.x = ghosts[i]->objData.Coord.x - submap->offset.x;
+        fixed.Coord.y = ghosts[i]->objData.Coord.y - submap->offset.y;
+		RecArea ghostHB = getDrawArea(&fixed, GAME_TICK_CD);
 		al_draw_rectangle(
 			ghostHB.x, ghostHB.y,
 			ghostHB.x + ghostHB.w, ghostHB.y + ghostHB.h,
@@ -325,6 +346,7 @@ static void destroy(void) {
     free(ghosts);
     delete_map(basic_map);
     delete_submap(view_map);
+    delete_submap(submap);
 }
 
 static void on_key_down(int key_code) {
@@ -332,15 +354,31 @@ static void on_key_down(int key_code) {
 	{
     case ALLEGRO_KEY_W:
         pacman_NextMove(pman, UP);
+        pacman_turn_head(pman, UP);
         break;
     case ALLEGRO_KEY_A:
         pacman_NextMove(pman, LEFT);
+        pacman_turn_head(pman, LEFT);
         break;
     case ALLEGRO_KEY_S:
         pacman_NextMove(pman, DOWN);
+        pacman_turn_head(pman, DOWN);
         break;
     case ALLEGRO_KEY_D:
         pacman_NextMove(pman, RIGHT);
+        pacman_turn_head(pman, RIGHT);
+        break;
+    case ALLEGRO_KEY_I:
+        pacman_turn_head(pman, UP);
+        break;
+    case ALLEGRO_KEY_J:
+        pacman_turn_head(pman, LEFT);
+        break;
+    case ALLEGRO_KEY_K:
+        pacman_turn_head(pman, DOWN);
+        break;
+    case ALLEGRO_KEY_L:
+        pacman_turn_head(pman, RIGHT);
         break;
     case ALLEGRO_KEY_C:
         cheat_mode = !cheat_mode;
@@ -359,6 +397,9 @@ static void on_key_down(int key_code) {
     case ALLEGRO_KEY_E:
         power_up();
         break;
+    case ALLEGRO_KEY_Q:
+        pacman_NextMove(pman, NONE);
+        break;
 	default:
 		break;
 	}
@@ -374,10 +415,10 @@ static void on_mouse_down(int btn, int x, int y, int dz) {
 static void render_init_screen(void) {
 	al_clear_to_color(al_map_rgb(0, 0, 0));
 
-	draw_submap(view_map);
-	pacman_draw(pman, view_map);
+	draw_submap(view_map, submap->offset);
+	pacman_draw(pman, view_map, submap);
 	for (int i = 0; i < ghost_count; i++) {
-		ghost_draw(ghosts[i], view_map);
+		ghost_draw(ghosts[i], view_map, submap);
 	}
 
 	al_draw_text(

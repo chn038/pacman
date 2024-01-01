@@ -31,8 +31,9 @@ typedef struct Pacman{
 Pacman* pacman_create();
 void pacman_destroy(Pacman* pman);
 
-void pacman_draw(Pacman* pacman, Submap *view);
+void pacman_draw(Pacman* pacman, Submap *view, Submap *submap);
 void pacman_move(Pacman* pacman, Map* M);
+void pacman_turn_head(Pacman* pacman, Directions direction);
 void pacman_eatItem(Pacman* pacman, const char Item);
 
 void pacman_NextMove(Pacman* pacman, Directions next);

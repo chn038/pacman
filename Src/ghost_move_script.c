@@ -7,7 +7,6 @@
 extern uint32_t GAME_TICK_CD;
 extern uint32_t GAME_TICK;
 extern ALLEGRO_TIMER* game_tick_timer;
-extern const int cage_grid_x, cage_grid_y;
 
 /* Declare static function prototypes */
 // static function reference: https://stackoverflow.com/questions/558122/what-is-a-static-function-in-c
@@ -63,7 +62,7 @@ static void ghost_move_script_FREEDOM_shortest_path_Inky(Ghost* ghost, Map* M, P
 
 static void ghost_move_script_FREEDOM_shortest_path_Pinky(Ghost* ghost, Map* M, Pacman* pman)
 {
-    if (shortest_distance(M, ghost->objData.Coord.x, ghost->objData.Coord.y, pman->objData.Coord.x, pman->objData.Coord.y) < 30)
+    if (ghost->drawn)
         ghost_move_script_FREEDOM_shortest_path(ghost, M, pman);
     else
         ghost_move_script_FREEDOM_random(ghost, M);
@@ -131,7 +130,7 @@ static void ghost_move_script_GO_IN(Ghost* ghost, Map* M) {
 	// `shortest_path_direc` is a function that returns the direction of shortest path.
 	// Check `map.c` for its detail usage.
 	// For GO_IN state.
-	ghost->objData.nextTryMove = shortest_path_direc(M, ghost->objData.Coord.x, ghost->objData.Coord.y, cage_grid_x, cage_grid_y);
+	ghost->objData.nextTryMove = shortest_path_direc(M, ghost->objData.Coord.x, ghost->objData.Coord.y, M->cage_grid.x, M->cage_grid.y);
 }
 
 static void ghost_move_script_GO_OUT(Ghost* ghost, Map* M) {

@@ -1,6 +1,7 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include <string.h>
 #include <stdio.h>
+#include <math.h>
 #include <allegro5/allegro_primitives.h>
 #include "game.h"
 #include "map.h"
@@ -8,7 +9,7 @@
 
 /*global variables*/
 // [ NOTE ]
-const int block_width = 21,  block_height = 21;			// the pixel size of a "block"
+const int block_width = 43,  block_height = 43;			// the pixel size of a "block"
 const int map_offset_x = 25, map_offset_y = 50;			// pixel offset of where to start draw map
 const int four_probe[4][2] = {{ 1, 0 }, { 0, 1 }, { -1,0 }, { 0, -1 }};
 
@@ -61,7 +62,9 @@ Map* create_map(const char * filepath) {
 	if (filepath == NULL) {
 		M->row_num = 30;
 		M->col_num = 36;
-		game_log("Creating from default map. row = %d col = %d", M->row_num, M->col_num);
+        M->cage_grid.x = 22;
+        M->cage_grid.y = 11;
+		game_log("Creating from default map. row = %d col = %d cagex = %d cagey = %d", M->row_num, M->col_num, M->cage_grid.x, M->cage_grid.y);
 		
 	}
 	else {
@@ -71,7 +74,7 @@ Map* create_map(const char * filepath) {
 			game_abort("error to open map file\n");
 			return NULL;
 		}
-		if(fscanf(pFile, "%d%d", &M->row_num, &M->col_num) != 2) {
+		if(fscanf(pFile, "%d%d%d%d", &M->row_num, &M->col_num, &M->cage_grid.x, &M->cage_grid.y) != 4) {
 			game_abort("Map format unmatched\n");
             fclose(pFile);
 			return NULL;
@@ -142,23 +145,31 @@ Submap* create_submap(const Map* map, Pair_IntInt distance){
     return submap;
 }
 
-void update_submap(Submap *submap, Pair_IntInt position, Pair_IntInt vision){
+void update_submap(Submap *submap, Pair_IntInt position, Pair_IntInt vision, bool contract){
     submap->row_num = vision.y, submap->col_num = vision.x;
     submap->offset.x = position.x - submap->col_num / 2;
     submap->offset.y = position.y - submap->row_num / 2;
     if (submap->offset.x < 0) {
-        submap->col_num += submap->offset.x;
+        if (contract)
+            submap->col_num += submap->offset.x;
         submap->offset.x = 0;
     }
     if (submap->offset.y < 0) {
-        submap->row_num += submap->offset.y;
+        if (contract)
+            submap->row_num += submap->offset.y;
         submap->offset.y = 0;
     }
     if (submap->offset.x + submap->col_num > submap->point->col_num){
-        submap->col_num = submap->point->col_num - submap->offset.x;
+        if (contract)
+            submap->col_num = submap->point->col_num - submap->offset.x;
+        else
+            submap->offset.x = submap->point->col_num - submap->col_num;
     }
     if (submap->offset.y + submap->row_num > submap->point->row_num){
-        submap->row_num = submap->point->row_num - submap->offset.y;
+        if (contract)
+            submap->row_num = submap->point->row_num - submap->offset.y;
+        else
+            submap->offset.y = submap->point->row_num - submap->row_num;
     }
     return;
 }
@@ -180,51 +191,29 @@ void delete_map(Map* M) {
 	free(M);
 }
 
-void draw_submap(const Submap *submap, int centered){
+void draw_submap(const Submap *submap, const Pair_IntInt offset){
     if (submap->point == NULL){
         game_abort("error map!\n");
         return;
     }
-    if (centered){
-        Pair_IntInt position;
-        for (int row = submap->offset.y; row < submap->row_num + submap->offset.y; ++row){
-            for (int col = submap->offset.x; col < submap->col_num + submap->offset.x; ++col) {
-                position = make_pair(col - submap->offset.x, row - submap->offset.y);
-                switch (submap->point->map[row][col])
-                {
-                    case '#':
-                        draw_block_index(submap->point, row, col, position);
-                        break;
-                    // TODO-PB: draw the power bean
-                    case 'P':
-                        draw_power_bean(submap->point, position);
-                        break;
-                    case '.':
-                        draw_bean(submap->point, position);
-                        break;
-                    default:
-                        break;
-                }
-            }
-        }
-    } else {
-        for (int row = submap->offset.y; row < submap->row_num + submap->offset.y; ++row){
-            for (int col = submap->offset.x; col < submap->col_num + submap->offset.x; ++col) {
-                switch (submap->point->map[row][col])
-                {
-                    case '#':
-                        draw_block_index(submap->point, row, col, make_pair(row, col));
-                        break;
-                    // TODO-PB: draw the power bean
-                    case 'P':
-                        draw_power_bean(submap->point, make_pair(row, col));
-                        break;
-                    case '.':
-                        draw_bean(submap->point, make_pair(row, col));
-                        break;
-                    default:
-                        break;
-                }
+    Pair_IntInt position;
+    for (int row = submap->offset.y; row < submap->row_num + submap->offset.y; ++row){
+        for (int col = submap->offset.x; col < submap->col_num + submap->offset.x; ++col) {
+            position = make_pair(col - offset.x, row - offset.y);
+            switch (submap->point->map[row][col])
+            {
+                case '#':
+                    draw_block_index(submap->point, row, col, position);
+                    break;
+                // TODO-PB: draw the power bean
+                case 'P':
+                    draw_power_bean(submap->point, position);
+                    break;
+                case '.':
+                    draw_bean(submap->point, position);
+                    break;
+                default:
+                    break;
             }
         }
     }
@@ -332,74 +321,6 @@ bool is_room_block(const Map* M, int index_x, int index_y) {
 	if (index_x < 0 || index_x >= M->col_num || index_y < 0 || index_y >= M->row_num)
 		return true;
 	return M->map[index_y][index_x] == 'B';
-}
-
-Directions shortest_distance(Map* M, int startGridx, int startGridy, int endGridx, int endGridy) {
-	// NOTODO
-	// Here is a complete function return the next direction of the shortest path.
-	// Given Map, start point and end point.
-	// It will tell you where to go for the shortest path.
-	// !NOTICE! if your map grow really large, the size of queue, may become not enough. 
-	// Hint: You can alter this function and make it return direction and also the distance for your usage.
-
-
-static int8_t queue_x[QUEUE_SIZE];
-static int8_t queue_y[QUEUE_SIZE];
-static	uint16_t front;
-static	uint16_t end;
-
-	static Directions steped[MAX_WALL_NUM_H][MAX_WALL_NUM_W];
-	memset(steped, 0, sizeof(steped)); // set as NONE;
-
-	front = end = 0;
-	queue_x[end] = startGridx;
-	queue_y[end] = startGridy;
-	steped[startGridy][startGridx] = 1; /*	for dummy just means that startGrid have been visited.	*/ 
-
-	end++;
-
-	for (size_t i = 0; i < 4; i++) {
-		int8_t x = queue_x[front] + four_probe[i][0];
-		int8_t y = queue_y[front] + four_probe[i][1];
-		if (is_wall_block(M, x, y) || steped[y][x])
-			continue;
-		queue_x[end] = x;
-		queue_y[end] = y;
-		switch (i) {
-			case 0:
-				steped[y][x] = RIGHT;
-				break;
-			case 1:
-				steped[y][x] = DOWN;
-				break;
-			case 2:
-				steped[y][x] = LEFT;
-				break;
-			case 3:
-				steped[y][x] = UP;
-				break;
-			default:
-				break;
-		}
-		end++;
-	}
-	front++;
-
-	while (front != end && steped[endGridy][endGridx] == NONE) {
-
-		for (size_t i = 0; i < 4; i++) {
-			int8_t x = queue_x[front] + four_probe[i][0];
-			int8_t y = queue_y[front] + four_probe[i][1];
-			if (is_wall_block(M, x, y) || steped[y][x])
-				continue;
-			queue_x[end] = x;
-			queue_y[end] = y;
-			steped[y][x] = steped[queue_y[front]][queue_x[front]];
-			end++;
-		}
-		front++;
-	}
-	return front;
 }
 
 Directions shortest_path_direc(Map* M, int startGridx, int startGridy, int endGridx, int endGridy) {

@@ -11,19 +11,14 @@
 // You have to modify cage_grid_{x,y} to corressponding value also.
 // Or you can do some change while loading map (reading .txt file)
 // Make the start position metadata stored with map.txt.
-const int cage_grid_x=22, cage_grid_y=11;
-
 /* shared variables. */
 extern uint32_t GAME_TICK;
 extern uint32_t GAME_TICK_CD;
 extern const int block_width,  block_height;
 /* Internal variables */
-static const int fix_draw_pixel_offset_x = -3;
-static const int fix_draw_pixel_offset_y = -3;
-static const int draw_region = 30;
 static const int basic_speed = 2;
 
-Ghost* ghost_create(int flag) {
+Ghost* ghost_create(int flag, Map* M) {
 
 	// NOTODO
 	Ghost* ghost = (Ghost*)malloc(sizeof(Ghost));
@@ -38,38 +33,30 @@ Ghost* ghost_create(int flag) {
 	ghost->objData.nextTryMove = NONE;
 	ghost->speed = basic_speed;
 	ghost->status = BLOCKED;
+    ghost->drawn = false;
 
 	ghost->flee_sprite = load_bitmap("Assets/ghost_flee.png");
 	ghost->dead_sprite = load_bitmap("Assets/ghost_dead.png");
-
+    ghost->objData.Coord.x = M->cage_grid.x;
+    ghost->objData.Coord.y = M->cage_grid.y;
 	switch (ghost->typeFlag) {
 	case Blinky:
-		ghost->objData.Coord.x = cage_grid_x;
-		ghost->objData.Coord.y = cage_grid_y;
 		ghost->move_sprite = load_bitmap("Assets/ghost_move_red.png");
 		ghost->move_script = &ghost_move_script_shortest_path;
 		break;
 	case Pinky:
-		ghost->objData.Coord.x = cage_grid_x;
-		ghost->objData.Coord.y = cage_grid_y;
 		ghost->move_sprite = load_bitmap("Assets/ghost_move_pink.png");
 		ghost->move_script = &ghost_move_script_shortest_path;
         break;
     case Inky:
-		ghost->objData.Coord.x = cage_grid_x;
-		ghost->objData.Coord.y = cage_grid_y;
 		ghost->move_sprite = load_bitmap("Assets/ghost_move_orange.png");
 		ghost->move_script = &ghost_move_script_shortest_path;
         break;
     case Clyde:
-		ghost->objData.Coord.x = cage_grid_x;
-		ghost->objData.Coord.y = cage_grid_y;
 		ghost->move_sprite = load_bitmap("Assets/ghost_move_blue.png");
 		ghost->move_script = &ghost_move_script_shortest_path;
         break;
 	default:
-		ghost->objData.Coord.x = cage_grid_x;
-		ghost->objData.Coord.y = cage_grid_y;
 		ghost->move_sprite = load_bitmap("Assets/ghost_move_red.png");
 		ghost->move_script = &ghost_move_script_random;
     break;
@@ -93,9 +80,12 @@ void ghost_draw(Ghost* ghost, Submap* view, Submap* submap) {
     fixed.Coord.y = ghost->objData.Coord.y - submap->offset.y;
     if (fixed.Coord.x < 0 || fixed.Coord.y < 0 ||
         fixed.Coord.x >= submap->offset.x + submap->col_num ||
-        fixed.Coord.y >= submap->offset.y + submap->row_num)
+        fixed.Coord.y >= submap->offset.y + submap->row_num){
+        ghost->drawn = false; 
         return;
+    }
 	RecArea drawArea = getDrawArea(&fixed, GAME_TICK_CD);
+    ghost->drawn = true;
 
 	//Draw default image
 	int bitmap_x_offset = 0;
@@ -110,8 +100,8 @@ void ghost_draw(Ghost* ghost, Submap* view, Submap* submap) {
         }
         al_draw_scaled_bitmap(ghost->flee_sprite, bitmap_x_offset, 0,
             16, 16,
-            drawArea.x + fix_draw_pixel_offset_x, drawArea.y + fix_draw_pixel_offset_y,
-            draw_region, draw_region, 0 
+            drawArea.x, drawArea.y,
+            block_width, block_height, 0 
         );
         break;
     case GO_IN:
@@ -129,8 +119,8 @@ void ghost_draw(Ghost* ghost, Submap* view, Submap* submap) {
         }
         al_draw_scaled_bitmap(ghost->dead_sprite, bitmap_x_offset, 0,
             16, 16,
-            drawArea.x + fix_draw_pixel_offset_x, drawArea.y + fix_draw_pixel_offset_y,
-            draw_region, draw_region, 0 
+            drawArea.x, drawArea.y,
+            block_width, block_height, 0 
         );
         break;
     default:
@@ -155,8 +145,8 @@ void ghost_draw(Ghost* ghost, Submap* view, Submap* submap) {
         }
         al_draw_scaled_bitmap(ghost->move_sprite, offset + bitmap_x_offset, 0,
             16, 16,
-            drawArea.x + fix_draw_pixel_offset_x, drawArea.y + fix_draw_pixel_offset_y,
-            draw_region, draw_region, 0 
+            drawArea.x, drawArea.y,
+            block_width, block_height, 0 
         );
         break;
     }
