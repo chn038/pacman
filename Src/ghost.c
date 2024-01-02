@@ -18,7 +18,7 @@ extern const int block_width,  block_height;
 /* Internal variables */
 static const int basic_speed = 2;
 
-Ghost* ghost_create(int flag, Map* M) {
+Ghost* ghost_create(int flag, Pair_IntInt position) {
 
 	// NOTODO
 	Ghost* ghost = (Ghost*)malloc(sizeof(Ghost));
@@ -37,8 +37,8 @@ Ghost* ghost_create(int flag, Map* M) {
 
 	ghost->flee_sprite = load_bitmap("Assets/ghost_flee.png");
 	ghost->dead_sprite = load_bitmap("Assets/ghost_dead.png");
-    ghost->objData.Coord.x = M->cage_grid.x;
-    ghost->objData.Coord.y = M->cage_grid.y;
+    ghost->objData.Coord.x = position.x;
+    ghost->objData.Coord.y = position.y;
 	switch (ghost->typeFlag) {
 	case Blinky:
 		ghost->move_sprite = load_bitmap("Assets/ghost_move_red.png");
@@ -82,10 +82,12 @@ void ghost_draw(Ghost* ghost, Submap* view, Submap* submap) {
         fixed.Coord.x >= submap->offset.x + submap->col_num ||
         fixed.Coord.y >= submap->offset.y + submap->row_num){
         ghost->drawn = false; 
+        ghost->shown = false;
         return;
     }
 	RecArea drawArea = getDrawArea(&fixed, GAME_TICK_CD);
     ghost->drawn = true;
+    ghost->shown = true;
 
 	//Draw default image
 	int bitmap_x_offset = 0;
@@ -124,12 +126,16 @@ void ghost_draw(Ghost* ghost, Submap* view, Submap* submap) {
         );
         break;
     default:
-        if (ghost->objData.Coord.x < view->offset.x || 
-            ghost->objData.Coord.x >= view->offset.x + view->col_num ||
-            ghost->objData.Coord.y < view->offset.y ||
-            ghost->objData.Coord.y >= view->offset.y + view->row_num)
-                return;
-        if ((ghost->objData.moveCD >> 4) & 1) offset = 16;
+        if (ghost->speed < 4){
+            if (ghost->objData.Coord.x < view->offset.x || 
+                ghost->objData.Coord.x >= view->offset.x + view->col_num ||
+                ghost->objData.Coord.y < view->offset.y ||
+                ghost->objData.Coord.y >= view->offset.y + view->row_num){
+                    ghost->shown = false;
+                    return;
+            }
+        }
+        if ((ghost->objData.moveCD >> 5) & 1) offset = 16;
         else offset = 0;
 		switch (ghost->objData.facing)
 		{

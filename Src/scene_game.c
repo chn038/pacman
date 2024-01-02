@@ -17,7 +17,7 @@ extern const uint32_t GAME_TICK_CD;
 extern uint32_t GAME_TICK;
 extern ALLEGRO_TIMER* game_tick_timer;
 int MAX_GHOST_NUM = 5; 
-Pair_IntInt vision = {10, 3};
+Pair_IntInt vision = {8, 3};
 Pair_IntInt range = {16, 16};
 int game_main_Score = 0;
 int power_counter = 0;
@@ -71,7 +71,7 @@ static void init(void) {
     }
     center = make_pair(basic_map->col_num / 2, basic_map->row_num / 2.0);
 
-	pman = pacman_create();
+	pman = pacman_create(basic_map->start_grid);
 	if (!pman) {
 		game_abort("error on creating pacamn\n");
 	}
@@ -82,14 +82,14 @@ static void init(void) {
 	}
 	else {
         ghost_count = 0;
-        ghosts[ghost_count] = ghost_create(ghost_count, basic_map);  
+        ghosts[ghost_count] = ghost_create(ghost_count, basic_map->cage_grid);  
         if (!ghosts[ghost_count])
             game_abort("error creating ghost\n");
         ghost_count = 1;
 	}
 	GAME_TICK = 0;
     update_submap(view_map, make_pair(pman->objData.Coord.x + 3, pman->objData.Coord.y), vision, true);
-    update_submap(submap, make_pair(pman->objData.Coord.x + 3, pman->objData.Coord.y), range, false);
+    update_submap(submap, make_pair(pman->objData.Coord.x, pman->objData.Coord.y), range, false);
 	render_init_screen();
 	power_up_timer = al_create_timer(1.0f); // 1 tick per second
 	if (!power_up_timer)
@@ -202,7 +202,7 @@ static void status_update(void) {
         newGhost = Inky;
 
     if (basic_map->beansCount - basic_map->beansNum == basic_map->beansCount / MAX_GHOST_NUM * ghost_count){
-        ghosts[ghost_count] = ghost_create(newGhost, basic_map);
+        ghosts[ghost_count] = ghost_create(newGhost, basic_map->cage_grid);
         if (!ghosts[ghost_count]){
             game_log("Failed to create ghost %d", ghost_count);
         }
@@ -230,26 +230,26 @@ static void update(void) {
     case LEFT:
         dire.x = vision.x;
         dire.y = vision.y;
-        offset.x = -(dire.x / 2) + 2;
+        offset.x = -(dire.x / 2) + 1;
         offset.y = 0;
         break;
     case RIGHT:
         dire.x = vision.x;
         dire.y = vision.y;
-        offset.x = (dire.x / 2) - 2;
+        offset.x = (dire.x / 2);
         offset.y = 0;
         break;
     case UP:
         dire.x = vision.y;
         dire.y = vision.x;
         offset.x = 0;
-        offset.y = -(dire.y / 2) + 2;
+        offset.y = -(dire.y / 2) + 1;
         break;
     case DOWN:
         dire.x = vision.y;
         dire.y = vision.x;
         offset.x = 0;
-        offset.y = (dire.y / 2) - 2;
+        offset.y = (dire.y / 2);
         break;
     default:
         offset.x = 0;
@@ -259,7 +259,7 @@ static void update(void) {
         break;
     }
     update_submap(view_map, make_pair(pman->objData.Coord.x + offset.x, pman->objData.Coord.y + offset.y), dire, true);
-    update_submap(submap, make_pair(pman->objData.Coord.x + offset.x, pman->objData.Coord.y + offset.y), range, false);
+    update_submap(submap, make_pair(pman->objData.Coord.x, pman->objData.Coord.y), range, false);
 }
 
 static void draw(void) {

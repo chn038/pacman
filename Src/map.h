@@ -1,6 +1,7 @@
 #ifndef MAP_H
 #define MAP_H
 #include "utility.h"
+#include "game.h"
 
 #define MAX_WALL_NUM_W 100
 #define MAX_WALL_NUM_H 100
@@ -13,8 +14,10 @@ typedef struct Map{
 	int beansNum;
 	int beansCount;
     Pair_IntInt cage_grid;
+    Pair_IntInt start_grid;
 	char** map;
 } Map;
+
 typedef struct Submap{
     int row_num, col_num;
     const Map *point;

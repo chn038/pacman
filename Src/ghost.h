@@ -43,9 +43,10 @@ typedef struct Ghost{
 	ALLEGRO_BITMAP* flee_sprite;
 	ALLEGRO_BITMAP* dead_sprite;
     bool drawn;
+    bool shown;
 } Ghost;
 
-Ghost* ghost_create(int flag, Map* M);
+Ghost* ghost_create(int flag, Pair_IntInt position);
 void ghost_destory(Ghost* ghost);
 void ghost_draw(Ghost* ghost, Submap* view, Submap* submap);
 void ghost_NextMove(Ghost* ghost, Directions next);

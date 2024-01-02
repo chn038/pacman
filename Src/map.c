@@ -55,6 +55,7 @@ Map* create_map(const char * filepath) {
 
 	Map* M = (Map*)malloc(sizeof(Map));
 	FILE* pFile = NULL;
+    Pair_IntInt dummy;
 	if (!M) {
 		game_abort("Error when creating Map");
 		return NULL;
@@ -64,8 +65,8 @@ Map* create_map(const char * filepath) {
 		M->col_num = 36;
         M->cage_grid.x = 22;
         M->cage_grid.y = 11;
-		game_log("Creating from default map. row = %d col = %d cagex = %d cagey = %d", M->row_num, M->col_num, M->cage_grid.x, M->cage_grid.y);
-		
+		M->start_grid.x = 24;
+        M->start_grid.y = 24;
 	}
 	else {
 		game_log("Tries to open %s\n", filepath);
@@ -74,7 +75,7 @@ Map* create_map(const char * filepath) {
 			game_abort("error to open map file\n");
 			return NULL;
 		}
-		if(fscanf(pFile, "%d%d%d%d", &M->row_num, &M->col_num, &M->cage_grid.x, &M->cage_grid.y) != 4) {
+		if(fscanf(pFile, "%d%d%d%d%d%d", &M->row_num, &M->col_num, &M->cage_grid.x, &M->cage_grid.y, &M->start_grid.x, &M->start_grid.y) != 6) {
 			game_abort("Map format unmatched\n");
             fclose(pFile);
 			return NULL;
@@ -101,7 +102,9 @@ Map* create_map(const char * filepath) {
 			if (filepath == NULL)
 				M->map[i][j] = nthu_map[i][j];
 			else
-				fscanf(pFile, "%c", &M->map[i][j]);
+				if (fscanf(pFile, "%c", &M->map[i][j]) != 1){
+                    game_abort("Error loading map");
+                }
 			switch(M->map[i][j]) {
 			case '#':
 				M->wallnum++;
@@ -122,6 +125,7 @@ Map* create_map(const char * filepath) {
 	}
 	M->beansNum = M->beansCount;
     if (pFile) fclose(pFile);
+    game_log("Finish loading map.");
 	return M;
 }
 
