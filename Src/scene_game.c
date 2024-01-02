@@ -53,6 +53,8 @@ static void power_up(void);
 static void init(void) {
 	game_over = false;
 	game_main_Score = 0;
+    power_counter = 0;
+    ghost_count = 0;
 
 	basic_map = create_map("Assets/Map/map_nthu.txt");
 	if (!basic_map) {
@@ -81,11 +83,10 @@ static void init(void) {
 		game_log("We haven't create any ghosts!\n");
 	}
 	else {
-        ghost_count = 0;
         ghosts[ghost_count] = ghost_create(ghost_count, basic_map->cage_grid);  
         if (!ghosts[ghost_count])
             game_abort("error creating ghost\n");
-        ghost_count = 1;
+        ghost_count += 1;
 	}
 	GAME_TICK = 0;
     update_submap(view_map, make_pair(pman->objData.Coord.x + 3, pman->objData.Coord.y), vision, true);
@@ -230,26 +231,26 @@ static void update(void) {
     case LEFT:
         dire.x = vision.x;
         dire.y = vision.y;
-        offset.x = -(dire.x / 2) + 1;
+        offset.x = -(dire.x / 2) + 2;
         offset.y = 0;
         break;
     case RIGHT:
         dire.x = vision.x;
         dire.y = vision.y;
-        offset.x = (dire.x / 2);
+        offset.x = (dire.x / 2) - 1;
         offset.y = 0;
         break;
     case UP:
         dire.x = vision.y;
         dire.y = vision.x;
         offset.x = 0;
-        offset.y = -(dire.y / 2) + 1;
+        offset.y = -(dire.y / 2) + 2;
         break;
     case DOWN:
         dire.x = vision.y;
         dire.y = vision.x;
         offset.x = 0;
-        offset.y = (dire.y / 2);
+        offset.y = (dire.y / 2) - 1;
         break;
     default:
         offset.x = 0;

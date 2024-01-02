@@ -28,7 +28,7 @@ bool* mouse_state;
 /* Shared variables. */
 int mouse_x, mouse_y;
 uint32_t GAME_TICK = 0;
-const uint32_t GAME_TICK_CD = 128;
+const uint32_t GAME_TICK_CD = 64;
 ALLEGRO_TIMER* game_tick_timer;
 extern bool gameDone;
 

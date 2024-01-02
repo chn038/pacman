@@ -17,6 +17,7 @@ Hard:
     - bgm?
     - scary?
 - scoreboard
+- a nice map
 
 ---
 
