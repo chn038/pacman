@@ -2,6 +2,7 @@
 #include "ghost.h"
 #include "pacman_obj.h"
 #include "map.h"
+#include "utility.h"
 /* Shared variables */
 #define GO_OUT_TIME 256
 extern uint32_t GAME_TICK_CD;
@@ -52,50 +53,51 @@ static void ghost_move_script_FREEDOM_random(Ghost* ghost, Map* M) {
 
 static void ghost_move_script_FREEDOM_shortest_path_Blinky(Ghost* ghost, Map* M, Pacman* pman)
 {
+    static int countdown;
+    if (countdown > 5) ghost->speed = 1;
+    else ghost->speed = 4;
+    countdown++;
+    if (countdown > 10) countdown = 0;
     ghost_move_script_FREEDOM_shortest_path(ghost, M, pman);
 }
 
 static void ghost_move_script_FREEDOM_shortest_path_Inky(Ghost* ghost, Map* M, Pacman* pman)
 {
+    if (ghost->drawn) ghost->speed = 1;
+    else ghost->speed = 2;
     ghost_move_script_FREEDOM_random(ghost, M);
 }
 
 static void ghost_move_script_FREEDOM_shortest_path_Pinky(Ghost* ghost, Map* M, Pacman* pman)
 {
-    if (ghost->drawn)
+    static int countdown;
+    if (ghost->drawn){
+        if (countdown < 5) ghost->speed = 2;
+        else ghost->speed = 1;
         ghost_move_script_FREEDOM_shortest_path(ghost, M, pman);
-    else
+        countdown++;
+        if (countdown > 15) countdown = 0;
+    }
+    else {
         ghost_move_script_FREEDOM_random(ghost, M);
+    }
 }
 
 static void ghost_move_script_FREEDOM_shortest_path_Clyde(Ghost* ghost, Map* M, Pacman* pman)
 {
-    int facingx, facingy;
-    switch (pman->objData.facing){
-    case LEFT:
-        facingx = -2;
-        facingy = 0;
-        break;
-    case RIGHT:
-        facingx = 2;
-        facingy = 0;
-        break;
-    case UP:
-        facingx = 0;
-        facingy = -2;
-        break;
-    case DOWN:
-        facingx = 0;
-        facingy = 2;
-        break;
-    default:
-        facingx = facingy = 0;
-    }
-    Directions shortestDirection = shortest_path_direc(M, ghost->objData.Coord.x, ghost->objData.Coord.y, pman->objData.Coord.x + facingx, pman->objData.Coord.y + facingy);
-    if (ghost_movable(ghost, M, shortestDirection, 0))
-        ghost->objData.nextTryMove = shortestDirection;
-    else
+    static int countdown;
+    static int speed;
+    if (countdown > 10) speed = 1;
+    else speed = 2;
+    countdown++;
+    if (countdown > 20) countdown = 0;
+    if (ghost->shown) {
+        ghost->speed = 1;
+        ghost_move_script_FLEE(ghost, M, pman);
+    } else {
+        ghost->speed = speed;
         ghost_move_script_FREEDOM_shortest_path(ghost, M, pman);
+    }
 }
 
 static void ghost_move_script_FREEDOM_shortest_path(Ghost* ghost, Map* M, Pacman* pman)
@@ -145,24 +147,38 @@ static void ghost_move_script_GO_OUT(Ghost* ghost, Map* M) {
 }
 
 static void ghost_move_script_FLEE(Ghost* ghost, Map* M, const Pacman * const pacman) {
-	Directions shortestDirection = shortest_path_direc(M, ghost->objData.Coord.x, ghost->objData.Coord.y, pacman->objData.Coord.x, pacman->objData.Coord.y);
+	static Directions shortestDirection;
+    shortestDirection = shortest_path_direc(M, ghost->objData.Coord.x, ghost->objData.Coord.y, pacman->objData.Coord.x, pacman->objData.Coord.y);
+    static Directions preferDirection;
     switch (shortestDirection){
     case LEFT:
-        shortestDirection = RIGHT;
+        preferDirection = RIGHT;
         break;
     case RIGHT:
-        shortestDirection = LEFT;
+        preferDirection = LEFT;
         break;
     case UP:
-        shortestDirection = DOWN;
+        preferDirection = DOWN;
         break;
     case DOWN:
-        shortestDirection = UP;
+        preferDirection = UP;
         break;
     default:
+        preferDirection = NONE;
         break;
     }
-    ghost->objData.nextTryMove = shortestDirection;
+	static Directions proba[4]; // possible movement
+	static int cnt = 0;
+    if (ghost_movable(ghost, M, preferDirection, 0))
+        ghost->objData.nextTryMove = preferDirection;
+    else {
+        for (Directions i = 1; i <= 4; i++)
+            if (i != shortestDirection && ghost_movable(ghost, M, i, 0)) 	proba[cnt++] = i;
+        if (cnt)
+            ghost->objData.nextTryMove = proba[generateRandomNumber(0, cnt)];
+        else
+            ghost->objData.nextTryMove = NONE;
+    }
 
 }
 

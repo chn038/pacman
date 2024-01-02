@@ -1,6 +1,6 @@
 # difficulty (whether you can eat up all the beans)
 
-Good luck and be patient.
+Luck can't save you.
 
 ---
 
@@ -34,15 +34,14 @@ Power mode:
 Ghost types:
 Type: Inky
     Mostly the ghosts you'll meet are them, they aren't really aware of you and most of the time won't come to you.
-    If you having trouble dealing with them, well, you're unlucky.
+    I mean, they don't even want to catch you. They even slow down when you near them, so just don't get in their ways.
 Type: Pinky
     They are a bit more cautious, and there are less of them too.
-    Maybe you won't want to be close to them.
+    They can sense you if you're too close, but they get tired easily so just be careful and you should be alright.
 Type: Clyde
-    They are dangerous and will come to you most of the time.
-    If you can't runaway, try to face them.
+    They will hunt you till death, but they are also kinda scared by you. If you can't runaway, try to face them. They are also good runners so don't lose hope even if they keep chasing you, they will get tired one day.
 Type: Blinky
-    They are deadly, run as fast as you can. If you don't have any power beans upon seeing them, it is your doom.
+    They are deadly, run as fast as you can. They can sense you no matter where you are, and their speed is so incredibly fast that you can sense them even if you can't see them. Luckily, they get tired easily but they also regen fast.
 
 Oh, did I mention that you can't see the whole map? There's nothing outside the box and it should scare you not confuse you. Try not to confuse yourself and turn your head often.
 

@@ -4,8 +4,8 @@ ghost movement seems kinda random (perfect)
 
 # current difficulty:
 
-Fine:
-    If one's lucky and patient, one can pass it.
+Hard:
+    You need to have good luck while being incredibly smart to pass.
 
 ---
 

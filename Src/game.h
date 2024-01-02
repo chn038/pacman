@@ -1,4 +1,4 @@
- //#pragma once
+//#pragma once
 // [game.h]
 // declare shared variables and allegro5 related routines.
 

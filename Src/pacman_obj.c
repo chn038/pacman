@@ -3,7 +3,6 @@
 #include "pacman_obj.h"
 #include "map.h"
 /* Static variables */
-static const int start_grid_x = 25, start_grid_y = 25;		// where to put pacman at the beginning
 static ALLEGRO_SAMPLE_ID PACMAN_MOVESOUND_ID;
 // [ NOTE - speed ]
 // If you want to implement something regarding speed.
@@ -51,13 +50,14 @@ static bool pacman_movable(const Pacman* pacman, const Map* M, Directions target
 	return true;
 }
 
-Pacman* pacman_create() {
+Pacman* pacman_create(Pair_IntInt start_grid) {
 	// Allocate dynamic memory for pman pointer;
 	Pacman* pman = (Pacman*)malloc(sizeof(Pacman));
 	if (!pman)
 		return NULL;
-	pman->objData.Coord.x = 24;
-	pman->objData.Coord.y = 24;
+	pman->objData.Coord.x = start_grid.x;
+	pman->objData.Coord.y = start_grid.y;
+    game_log("%d%d", pman->objData.Coord.x, pman->objData.Coord.y);
 	pman->objData.Size.x = block_width;
 	pman->objData.Size.y = block_height;
 
@@ -100,7 +100,7 @@ void pacman_draw(Pacman* pman, Submap *view, Submap *submap) {
 	int offset = 0;
     int facing = 0;
 	if (!game_over) {
-        if ((pman->objData.moveCD >> 4) & 1){
+        if ((pman->objData.moveCD >> 5) & 1){
             offset = 16;
         } else {
             offset = 0;

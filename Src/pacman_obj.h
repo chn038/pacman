@@ -28,7 +28,7 @@ typedef struct Pacman{
 	ALLEGRO_BITMAP* die_sprite;
 } Pacman;
 
-Pacman* pacman_create();
+Pacman* pacman_create(Pair_IntInt start_grid);
 void pacman_destroy(Pacman* pman);
 
 void pacman_draw(Pacman* pacman, Submap *view, Submap *submap);
