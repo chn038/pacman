@@ -16,7 +16,7 @@
 extern const uint32_t GAME_TICK_CD;
 extern uint32_t GAME_TICK;
 extern ALLEGRO_TIMER* game_tick_timer;
-int MAX_GHOST_NUM = 5; 
+int MAX_GHOST_NUM = 200; 
 Pair_IntInt vision = {8, 3};
 Pair_IntInt range = {16, 16};
 int game_main_Score = 0;
@@ -56,7 +56,7 @@ static void init(void) {
     power_counter = 0;
     ghost_count = 0;
 
-	basic_map = create_map("Assets/Map/map_nthu.txt");
+	basic_map = create_map("Assets/Map/map_main.txt");
 	if (!basic_map) {
         game_log("Error loading map, use default one.");
         basic_map = create_map(0);
@@ -83,10 +83,12 @@ static void init(void) {
 		game_log("We haven't create any ghosts!\n");
 	}
 	else {
-        ghosts[ghost_count] = ghost_create(ghost_count, basic_map->cage_grid);  
-        if (!ghosts[ghost_count])
-            game_abort("error creating ghost\n");
-        ghost_count += 1;
+        while (ghost_count < 20) {
+            ghosts[ghost_count] = ghost_create(Inky, basic_map->cage_grid);  
+            if (!ghosts[ghost_count])
+                game_abort("error creating ghost\n");
+            ghost_count += 1;
+        }
 	}
 	GAME_TICK = 0;
     update_submap(view_map, make_pair(pman->objData.Coord.x + 3, pman->objData.Coord.y), vision, true);
@@ -191,6 +193,7 @@ static void status_update(void) {
 	}
 
     if (ghost_count == MAX_GHOST_NUM) return;
+
     float diff = MAX_GHOST_NUM * 0.1;
     GhostType newGhost;
     if (ghost_count >= diff * 8)

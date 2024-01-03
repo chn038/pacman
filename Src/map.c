@@ -5,7 +5,7 @@
 #include <allegro5/allegro_primitives.h>
 #include "game.h"
 #include "map.h"
-#define QUEUE_SIZE 3000
+#define QUEUE_SIZE 300000
 
 /*global variables*/
 // [ NOTE ]

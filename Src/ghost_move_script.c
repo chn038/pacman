@@ -53,11 +53,10 @@ static void ghost_move_script_FREEDOM_random(Ghost* ghost, Map* M) {
 
 static void ghost_move_script_FREEDOM_shortest_path_Blinky(Ghost* ghost, Map* M, Pacman* pman)
 {
-    static int countdown;
-    if (countdown > 5) ghost->speed = 1;
+    if (ghost->countdown > 4) ghost->speed = 1;
     else ghost->speed = 4;
-    countdown++;
-    if (countdown > 10) countdown = 0;
+    ghost->countdown++;
+    if (ghost->countdown > 10) ghost->countdown = 0;
     ghost_move_script_FREEDOM_shortest_path(ghost, M, pman);
 }
 
@@ -70,27 +69,28 @@ static void ghost_move_script_FREEDOM_shortest_path_Inky(Ghost* ghost, Map* M, P
 
 static void ghost_move_script_FREEDOM_shortest_path_Pinky(Ghost* ghost, Map* M, Pacman* pman)
 {
-    static int countdown;
     if (ghost->drawn){
-        if (countdown < 5) ghost->speed = 2;
+        if (ghost->countdown < 5) ghost->speed = 2;
         else ghost->speed = 1;
         ghost_move_script_FREEDOM_shortest_path(ghost, M, pman);
-        countdown++;
-        if (countdown > 15) countdown = 0;
     }
     else {
-        ghost_move_script_FREEDOM_random(ghost, M);
+        if (ghost->countdown & 1)
+            ghost_move_script_FREEDOM_random(ghost, M);
+        else
+            ghost_move_script_FREEDOM_shortest_path(ghost, M, pman);
     }
+    ghost->countdown++;
+    if (ghost->countdown > 10) ghost->countdown = 0;
 }
 
 static void ghost_move_script_FREEDOM_shortest_path_Clyde(Ghost* ghost, Map* M, Pacman* pman)
 {
-    static int countdown;
     static int speed;
-    if (countdown > 10) speed = 1;
+    if (ghost->countdown > 10) speed = 1;
     else speed = 2;
-    countdown++;
-    if (countdown > 20) countdown = 0;
+    ghost->countdown++;
+    if (ghost->countdown > 20) ghost->countdown = 0;
     if (ghost->shown) {
         ghost->speed = 1;
         ghost_move_script_FLEE(ghost, M, pman);
