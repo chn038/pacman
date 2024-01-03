@@ -47,7 +47,7 @@ typedef struct Ghost{
 } Ghost;
 
 Ghost* ghost_create(int flag, Pair_IntInt position);
-void ghost_destory(Ghost* ghost);
+void ghost_destroy(Ghost* ghost);
 void ghost_draw(Ghost* ghost, Submap* view, Submap* submap);
 void ghost_NextMove(Ghost* ghost, Directions next);
 void printGhostStatus(GhostStatus);

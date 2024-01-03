@@ -63,7 +63,7 @@ Ghost* ghost_create(int flag, Pair_IntInt position) {
 	}
 	return ghost;
 }
-void ghost_destory(Ghost* ghost) {
+void ghost_destroy(Ghost* ghost) {
 
     al_destroy_bitmap(ghost->move_sprite);
     al_destroy_bitmap(ghost->dead_sprite);

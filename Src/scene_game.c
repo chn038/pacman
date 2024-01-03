@@ -342,7 +342,7 @@ static void printinfo(void) {
 
 static void destroy(void) {
     for (int i = 0; i < ghost_count; ++i)
-        ghost_destory(ghosts[i]);
+        ghost_destroy(ghosts[i]);
     pacman_destroy(pman);
     free(ghosts);
     delete_map(basic_map);
