@@ -6,7 +6,7 @@
 #include <allegro5/allegro_primitives.h>
 #include <allegro5/allegro_native_dialog.h>
 #include <math.h>
-#include "scene_menu_object.h"
+#include "graphical_object.h"
 #include "scene_settings.h"
 #include "scene_game.h"
 #include "scene_menu.h"

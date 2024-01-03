@@ -12,7 +12,6 @@ Hard:
 # not implemented:
 
 - setting screen
-    - volume
     - ghost count
     - bgm?
     - scary?

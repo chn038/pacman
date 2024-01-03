@@ -9,20 +9,110 @@
 // name, they'll be different variables.
 
 /* Define your static vars / function prototypes below. */
+static float current_music = 0.5;
+static float current_effect = 0.5;
+static float max_music_volume = 2;
+static float max_effect_volume = 2;
+static bool music_muted = false;
+static bool effect_muted = false;
+static CheckBox music_mute;
+static SettingBar music_volume_bar;
+static CheckBox effect_mute;
+static SettingBar effect_volume_bar;
 
-// TODO-IF: More variables and functions that will only be accessed
-// inside this scene. They should all have the 'static' prefix.
+static void init(void){
+    music_volume_bar = settingbar_create(SCREEN_W * 0.4, SCREEN_H * 0.3, SCREEN_W * 0.3, SCREEN_H * 0.1, al_map_rgb(255, 255, 255), al_map_rgb(0, 0, 0), current_music / max_music_volume);
+    music_mute = checkbox_create(SCREEN_W * 0.8, SCREEN_H * 0.3, SCREEN_W * 0.1, SCREEN_H * 0.1, al_map_rgb(255, 255, 255), al_map_rgb(0, 0, 0), music_muted);
+    effect_volume_bar = settingbar_create(SCREEN_W * 0.4, SCREEN_H * 0.6, SCREEN_W * 0.3, SCREEN_H * 0.1, al_map_rgb(255, 255, 255), al_map_rgb(0, 0, 0), current_effect / max_effect_volume);
+    effect_mute = checkbox_create(SCREEN_W * 0.8, SCREEN_H * 0.6, SCREEN_W * 0.1, SCREEN_H * 0.1, al_map_rgb(255, 255, 255), al_map_rgb(0, 0, 0), effect_muted);
+    game_log("%.0f %.0f / %.0f %.0f", music_volume_bar.body.x, music_volume_bar.body.y, effect_volume_bar.body.x, effect_volume_bar.body.y);
+}
 
-static void draw(void ){
+static void draw(void){
+
+    static char music_indicator[50];
+    static char effect_indicator[50];
 	al_clear_to_color(al_map_rgb(0, 0, 0));
+
+    sprintf(music_indicator, "Music: %.0f%%", current_music*100);
+    sprintf(effect_indicator, "Effect: %.0f%%", current_effect*100);
+
+    al_draw_text(
+        menuFont, 
+        al_map_rgb(255, 255, 255),
+        SCREEN_W * 0.8,
+        SCREEN_H * 0.2,
+        ALLEGRO_ALIGN_LEFT,
+        "Muted"
+    );
+    
+    al_draw_text(
+        menuFont, 
+        al_map_rgb(255, 255, 255),
+        SCREEN_W * 0.5,
+        SCREEN_H * 0.1 - fontSize,
+        ALLEGRO_ALIGN_CENTER,
+        "Adjust by clicking the bar"
+    );
+
+    al_draw_text(
+        menuFont, 
+        al_map_rgb(255, 255, 255),
+        SCREEN_W * 0.5,
+        SCREEN_H * 0.1,
+        ALLEGRO_ALIGN_CENTER,
+        "You can also adjust with 'A' and 'D'"
+    );
+
+    al_draw_text(
+        menuFont, 
+        al_map_rgb(255, 255, 255),
+        SCREEN_W * 0.1,
+        SCREEN_H * 0.3,
+        ALLEGRO_ALIGN_LEFT,
+        music_indicator
+    );
+    drawSettingBar(music_volume_bar);
+    drawCheckBox(music_mute);
+
+    al_draw_text(
+        menuFont, 
+        al_map_rgb(255, 255, 255),
+        SCREEN_W * 0.1,
+        SCREEN_H * 0.6,
+        ALLEGRO_ALIGN_LEFT,
+        effect_indicator
+    );
+    drawSettingBar(effect_volume_bar);
+    drawCheckBox(effect_mute);
+
 	al_draw_text(
 		menuFont,
 		al_map_rgb(255, 255, 255),
-		(double)SCREEN_W/2,
+		SCREEN_W/2.0,
 		SCREEN_H - 150,
 		ALLEGRO_ALIGN_CENTER,
 		"<ENTER> Back to menu"
 	);
+}
+
+static void update_setting(){
+    current_music = max_music_volume * music_volume_bar.percent;
+    current_effect = max_effect_volume * effect_volume_bar.percent;
+    if (music_mute.checked) {
+        music_muted = true;
+        music_volume = 0;
+    } else {
+        music_muted = false;
+        music_volume = current_music;
+    }
+    if (effect_mute.checked){
+        effect_muted = true;
+        effect_volume = 0;
+    } else {
+        effect_muted = false;
+        effect_volume = current_effect;
+    }
 }
 
 static void on_key_down(int keycode) {
@@ -30,9 +120,75 @@ static void on_key_down(int keycode) {
 		case ALLEGRO_KEY_ENTER:
 			game_change_scene(scene_menu_create());
 			break;
+        case ALLEGRO_KEY_A:
+            if (music_volume_bar.hovered){
+                music_volume_bar.mouse = music_volume_bar.body.x + music_volume_bar.body.w * music_volume_bar.percent;
+                music_volume_bar.mouse -= 1;
+                if (music_volume_bar.mouse < music_volume_bar.body.x)
+                    music_volume_bar.mouse = music_volume_bar.body.x;
+                update_settingbar(&music_volume_bar);
+            }
+            if (effect_volume_bar.hovered){
+                effect_volume_bar.mouse = effect_volume_bar.body.x + effect_volume_bar.body.w * effect_volume_bar.percent;
+                effect_volume_bar.mouse -= 1;
+                if (effect_volume_bar.mouse < effect_volume_bar.body.x)
+                    effect_volume_bar.mouse = effect_volume_bar.body.x;
+                update_settingbar(&effect_volume_bar);
+            }
+            update_setting();
+            break;
+        case ALLEGRO_KEY_D:
+            if (music_volume_bar.hovered){
+                music_volume_bar.mouse = music_volume_bar.body.x + music_volume_bar.body.w * music_volume_bar.percent;
+                music_volume_bar.mouse += 1;
+                if (music_volume_bar.mouse > music_volume_bar.body.x + music_volume_bar.body.w)
+                    music_volume_bar.mouse = music_volume_bar.body.x;
+                update_settingbar(&music_volume_bar);
+            }
+            if (effect_volume_bar.hovered){
+                effect_volume_bar.mouse = effect_volume_bar.body.x + effect_volume_bar.body.w * effect_volume_bar.percent;
+                effect_volume_bar.mouse += 1;
+                if (effect_volume_bar.mouse > effect_volume_bar.body.x + music_volume_bar.body.w)
+                    effect_volume_bar.mouse = effect_volume_bar.body.x;
+                update_settingbar(&effect_volume_bar);
+            }
+            update_setting();
+            break;
 		default:
 			break;
 	}
+}
+
+static void on_mouse_move(int a, int mouse_x, int mouse_y, int f){
+    if (pnt_in_rect(mouse_x, mouse_y, music_volume_bar.body)) {
+        music_volume_bar.hovered = true;
+        music_volume_bar.mouse = mouse_x;
+    } else {
+        music_volume_bar.hovered = false;
+    }
+    if (pnt_in_rect(mouse_x, mouse_y, effect_volume_bar.body)) {
+        effect_volume_bar.hovered = true;
+        effect_volume_bar.mouse = mouse_x;
+    } else {
+        effect_volume_bar.hovered = false;
+    }
+    if (pnt_in_rect(mouse_x, mouse_y, music_mute.body))
+        music_mute.hovered = true;
+    else
+        music_mute.hovered = false;
+    if (pnt_in_rect(mouse_x, mouse_y, effect_mute.body))
+        effect_mute.hovered = true;
+    else
+        effect_mute.hovered = false;
+}
+
+static void on_mouse_down(){
+    update_checkbox(&music_mute);
+    update_checkbox(&effect_mute);
+    update_settingbar(&music_volume_bar);
+    update_settingbar(&effect_volume_bar);
+
+    update_setting();
 }
 
 // The only function that is shared across files.
@@ -40,33 +196,12 @@ Scene scene_settings_create(void) {
 	Scene scene;
 	memset(&scene, 0, sizeof(Scene));
 	scene.name = "Settings";
+    scene.initialize = &init;
 	scene.draw = &draw;
 	scene.on_key_down = &on_key_down;
+    scene.on_mouse_move = &on_mouse_move;
+    scene.on_mouse_down = &on_mouse_down;
 	// TODO-IF: Register more event callback functions such as keyboard, mouse, ...
 	game_log("Settings scene created");
 	return scene;
 }
-
-// TODO-Graphical_Widget:
-// Just suggestions, you can create your own usage.
-	// Selecting BGM:
-	// 1. Declare global variables for storing the BGM. (see `shared.h`, `shared.c`)
-	// 2. Load the BGM in `shared.c`.
-	// 3. Create dropdown menu for selecting BGM in setting scene, involving `scene_settings.c` and `scene_setting.h.
-	// 4. Switch and play the BGM if the corresponding option is selected.
-
-	// Adjusting Volume:
-	// 1. Declare global variables for storing the volume. (see `shared.h`, `shared.c`)
-	// 2. Create a slider for adjusting volume in setting scene, involving `scene_settings.c` and `scene_setting.h.
-		// 2.1. You may use checkbox to switch between mute and unmute.
-	// 3. Adjust the volume and play when the button is pressed.
-
-	// Selecting Map:
-	// 1. Preload the map to `shared.c`.
-	// 2. Create buttons(or dropdown menu) for selecting map in setting scene, involving `scene_settings.c` and `scene_setting.h.
-		// 2.1. For player experience, you may also create another scene between menu scene and game scene for selecting map.
-	// 3. Create buttons(or dropdown menu) for selecting map in setting scene, involving `scene_settings.c` and `scene_setting.h.
-	// 4. Switch and draw the map if the corresponding option is selected.
-		// 4.1. Suggestions: You may use `al_draw_bitmap` to draw the map for previewing. 
-							// But the map is too large to be drawn in original size. 
-							// You might want to modify the function to allow scaling.
