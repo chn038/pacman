@@ -140,7 +140,6 @@ void pacman_move(Pacman* pacman, Map* M) {
 	if (game_over)
 		return;
 
-	int probe_x = pacman->objData.Coord.x, probe_y = pacman->objData.Coord.y;
 	if (pacman_movable(pacman, M, pacman->objData.nextTryMove)) 
 		pacman->objData.preMove = pacman->objData.nextTryMove;
 	else if (!pacman_movable(pacman, M, pacman->objData.preMove)) 

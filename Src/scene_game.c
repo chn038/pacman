@@ -205,7 +205,7 @@ static void status_update(void) {
     else
         newGhost = Inky;
 
-    if (game_main_Score > ghost_count * 1000){
+    if (game_main_Score > ghost_count * 500){
         ghosts[ghost_count] = ghost_create(newGhost, basic_map->cage_grid);
         if (!ghosts[ghost_count]){
             game_log("Failed to create ghost %d", ghost_count);
@@ -280,11 +280,11 @@ static void draw(void) {
 
     al_draw_text(menuFont, al_map_rgb(255, 255, 255), (double)block_width*submap->col_num/2, block_height*submap->row_num + map_offset_y, ALLEGRO_ALIGN_CENTER, scoreboard); 
     al_draw_text(menuFont, al_map_rgb(255, 255, 255), (double)block_width*submap->col_num/2, block_height*submap->row_num + map_offset_y + fontSize, ALLEGRO_ALIGN_CENTER, progress_indicator); 
-        al_draw_text(menuFont, al_map_rgb(255, 255, 255), block_width*submap->col_num - (fontSize * 5), block_height*submap->row_num + map_offset_y , ALLEGRO_ALIGN_CENTER, powerup); 
+        al_draw_text(menuFont, al_map_rgb(255, 255, 255), block_width*submap->col_num - (fontSize * 2), block_height*submap->row_num + map_offset_y , ALLEGRO_ALIGN_CENTER, powerup); 
     if (cheat_mode)
         al_draw_text(menuFont, al_map_rgb(255, 255, 255), fontSize * 5, block_height*submap->row_num + map_offset_y, ALLEGRO_ALIGN_CENTER, "Cheat Mode"); 
     if (debug_mode)
-        al_draw_text(menuFont, al_map_rgb(255, 255, 255), fontSize * 5, block_height*submap->row_num + map_offset_y + fontSize, ALLEGRO_ALIGN_RIGHT, "Debug Mode"); 
+        al_draw_text(menuFont, al_map_rgb(255, 255, 255), fontSize * 5, block_height*submap->row_num + map_offset_y + fontSize, ALLEGRO_ALIGN_CENTER, "Debug Mode"); 
     
 
     draw_submap(view_map, submap->offset);
