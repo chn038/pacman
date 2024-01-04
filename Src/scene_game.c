@@ -16,7 +16,7 @@
 extern const uint32_t GAME_TICK_CD;
 extern uint32_t GAME_TICK;
 extern ALLEGRO_TIMER* game_tick_timer;
-int MAX_GHOST_NUM = 200; 
+int MAX_GHOST_NUM = 100; 
 Pair_IntInt vision = {8, 3};
 Pair_IntInt range = {16, 16};
 int game_main_Score = 0;
@@ -83,7 +83,7 @@ static void init(void) {
 		game_log("We haven't create any ghosts!\n");
 	}
 	else {
-        while (ghost_count < 20) {
+        while (ghost_count < 5) {
             ghosts[ghost_count] = ghost_create(Inky, basic_map->cage_grid);  
             if (!ghosts[ghost_count])
                 game_abort("error creating ghost\n");
@@ -205,7 +205,7 @@ static void status_update(void) {
     else
         newGhost = Inky;
 
-    if (basic_map->beansCount - basic_map->beansNum == basic_map->beansCount / MAX_GHOST_NUM * ghost_count){
+    if (game_main_Score > ghost_count * 1000){
         ghosts[ghost_count] = ghost_create(newGhost, basic_map->cage_grid);
         if (!ghosts[ghost_count]){
             game_log("Failed to create ghost %d", ghost_count);
@@ -284,7 +284,7 @@ static void draw(void) {
     if (cheat_mode)
         al_draw_text(menuFont, al_map_rgb(255, 255, 255), fontSize * 5, block_height*submap->row_num + map_offset_y, ALLEGRO_ALIGN_CENTER, "Cheat Mode"); 
     if (debug_mode)
-        al_draw_text(menuFont, al_map_rgb(255, 255, 255), fontSize * 5, block_height*submap->row_num + map_offset_y + fontSize, ALLEGRO_ALIGN_CENTER, "Debug Mode"); 
+        al_draw_text(menuFont, al_map_rgb(255, 255, 255), fontSize * 5, block_height*submap->row_num + map_offset_y + fontSize, ALLEGRO_ALIGN_RIGHT, "Debug Mode"); 
     
 
     draw_submap(view_map, submap->offset);
