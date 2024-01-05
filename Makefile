@@ -10,7 +10,7 @@ endif
 #REVISE INCLUDE path if you have installed different version or install path.
 
 DBG = -g -Wall -Wextra 
-objects= main.o game.o ghost.o ghost_move_script.o map.o pacman_obj.o scene_game.o scene_menu.o graphical_object.o scene_settings.o shared.o utility.o
+objects= main.o game.o ghost.o ghost_move_script.o map.o pacman_obj.o scene_game.o scene_menu.o graphical_object.o scene_settings.o shared.o utility.o scene_after_game.o
 
 all: pacman 
 

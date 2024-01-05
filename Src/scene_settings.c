@@ -2,6 +2,7 @@
 // No need to do anything for this part. We've already done it for
 // you, so this 2 files is like the default scene template.
 #include "scene_settings.h"
+#include "scene_after_game.h"
 
 // Variables and functions with 'static' prefix at the top level of a
 // source file is only accessible in that file ("file scope", also
@@ -94,6 +95,14 @@ static void draw(void){
 		ALLEGRO_ALIGN_CENTER,
 		"<ENTER> Back to menu"
 	);
+	al_draw_text(
+		menuFont,
+		al_map_rgb(255, 255, 255),
+		SCREEN_W/2.0,
+		SCREEN_H - 150 + fontSize,
+		ALLEGRO_ALIGN_CENTER,
+		"<S> to view Dashboard"
+	);
 }
 
 static void update_setting(){
@@ -153,6 +162,9 @@ static void on_key_down(int keycode) {
                 update_settingbar(&effect_volume_bar);
             }
             update_setting();
+            break;
+        case ALLEGRO_KEY_S:
+            game_change_scene(scene_after_game_create(false));
             break;
 		default:
 			break;

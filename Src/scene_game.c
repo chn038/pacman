@@ -7,7 +7,7 @@
 #include "shared.h"
 #include "utility.h"
 #include "scene_game.h"
-#include "scene_menu.h"
+#include "scene_after_game.h"
 #include "pacman_obj.h"
 #include "ghost.h"
 #include "map.h"
@@ -19,7 +19,7 @@ extern ALLEGRO_TIMER* game_tick_timer;
 int MAX_GHOST_NUM = 100; 
 Pair_IntInt vision = {8, 3};
 Pair_IntInt range = {16, 16};
-int game_main_Score = 0;
+uint32_t game_main_Score = 0;
 int power_counter = 0;
 bool game_over = false;
 
@@ -218,7 +218,7 @@ static void update(void) {
 
 	if (game_over) {
         if (al_get_timer_count(pman->death_anim_counter) == 12)
-            game_change_scene(scene_menu_create());
+            game_change_scene(scene_after_game_create(true));
 		return;
 	}
 
@@ -464,4 +464,8 @@ int64_t get_power_up_timer_tick(){
 
 int64_t get_power_up_duration(){
     return power_up_duration;
+}
+
+uint32_t get_score(){
+    return game_main_Score;
 }
