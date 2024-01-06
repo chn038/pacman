@@ -2,5 +2,5 @@
 #define SCENE_AFTER_GAME_H
 #include "game.h"
 #include "shared.h"
-Scene scene_after_game_create(bool append);
+Scene scene_after_game_create();
 #endif

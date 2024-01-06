@@ -44,6 +44,7 @@ typedef struct Ghost{
 	ALLEGRO_BITMAP* dead_sprite;
     bool drawn;
     bool shown;
+    bool stop;
     int countdown;
 } Ghost;
 

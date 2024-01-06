@@ -180,7 +180,7 @@ static void game_start_event_loop(void) {
 				game_update();
 			}
 		}
-		else if (event.type == ALLEGRO_EVENT_KEY_DOWN) {
+		else if (event.type == ALLEGRO_EVENT_KEY_CHAR) {
 			// Event for keyboard key down.
 			 game_log("Key with keycode %d down", event.keyboard.keycode);
 			key_state[event.keyboard.keycode] = true;
@@ -190,14 +190,14 @@ static void game_start_event_loop(void) {
 				continue;
 			}
 			if (active_scene.on_key_down)
-				(*active_scene.on_key_down)(event.keyboard.keycode);
+				(*active_scene.on_key_down)(event.keyboard.keycode, event.keyboard.modifiers);
 		}
 		else if (event.type == ALLEGRO_EVENT_KEY_UP) {
 			// Event for keyboard key up.
 			//game_log("Key with keycode %d up", event.keyboard.keycode);
 			key_state[event.keyboard.keycode] = false;
 			if (active_scene.on_key_up)
-				(*active_scene.on_key_up)(event.keyboard.keycode);
+				(*active_scene.on_key_up)(event.keyboard.keycode, event.keyboard.modifiers);
 		}
 		else if (event.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN) {
 			// Event for mouse key down.

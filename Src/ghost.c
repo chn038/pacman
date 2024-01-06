@@ -35,6 +35,7 @@ Ghost* ghost_create(int flag, Pair_IntInt position) {
 	ghost->speed = basic_speed;
 	ghost->status = BLOCKED;
     ghost->drawn = false;
+    ghost->stop = false;
 
 	ghost->flee_sprite = load_bitmap("Assets/ghost_flee.png");
 	ghost->dead_sprite = load_bitmap("Assets/ghost_dead.png");

@@ -30,7 +30,7 @@ typedef struct Pacman Pacman;
 static ALLEGRO_EVENT_QUEUE* game_event_queue;
 typedef void(*func_ptr)(void);
 typedef void(*script_func_ptr)(Ghost* ghost, Map*M, Pacman* pacman);
-typedef void(*func_ptr_keyboard)(int keycode);
+typedef void(*func_ptr_keyboard)(int keycode, int modifier);
 typedef void(*func_ptr_mouse)(int btn, int x, int y, int dz);
 // TODO-IF: More function pointer typedefs for other events.
 

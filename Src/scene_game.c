@@ -35,6 +35,7 @@ static char warning[50];
 static Pair_IntInt center;
 bool debug_mode = false;
 bool cheat_mode = false;
+bool stop_moving = false;
 
 static void init(void);
 static void step(void);
@@ -44,7 +45,7 @@ static void update(void);
 static void draw(void);
 static void printinfo(void);
 static void destroy(void);
-static void on_key_down(int key_code);
+static void on_key_down(int key_code, int modifier);
 static void on_mouse_down(int btn, int x, int y, int dz);
 static void render_init_screen(void);
 static void draw_hitboxes(void);
@@ -55,6 +56,7 @@ static void init(void) {
 	game_main_Score = 0;
     power_counter = 0;
     ghost_count = 0;
+    stop_moving = false;
 
 	basic_map = create_map("Assets/Map/map_main.txt");
 	if (!basic_map) {
@@ -128,7 +130,7 @@ static void checkItem(void) {
 	default:
 		break;
 	}
-    if(!(is_room_block(basic_map, Grid_x, Grid_y)) || !(is_wall_block(basic_map, Grid_x, Grid_y))){
+    if(!(is_room_block(basic_map, Grid_x, Grid_y)) && !(is_wall_block(basic_map, Grid_x, Grid_y))){
         basic_map->map[Grid_y][Grid_x] = ' ';
     }
     
@@ -218,7 +220,7 @@ static void update(void) {
 
 	if (game_over) {
         if (al_get_timer_count(pman->death_anim_counter) == 12)
-            game_change_scene(scene_after_game_create(true));
+            game_change_scene(scene_after_game_create());
 		return;
 	}
 
@@ -353,7 +355,7 @@ static void destroy(void) {
     delete_submap(submap);
 }
 
-static void on_key_down(int key_code) {
+static void on_key_down(int key_code, int modifier) {
 	switch (key_code)
 	{
     case ALLEGRO_KEY_W:
@@ -365,31 +367,53 @@ static void on_key_down(int key_code) {
         pacman_turn_head(pman, LEFT);
         break;
     case ALLEGRO_KEY_S:
-        pacman_NextMove(pman, DOWN);
-        pacman_turn_head(pman, DOWN);
+        if (!modifier) {
+            pacman_NextMove(pman, DOWN);
+            pacman_turn_head(pman, DOWN);
+        } else if (modifier == ALLEGRO_KEYMOD_CTRL) {
+            stop_moving = !stop_moving;
+            if (stop_moving) {
+                for (int i = 0; i < ghost_count; ++i){
+                        ghosts[i]->stop = true;
+                }
+            } else {
+                for (int i = 0; i < ghost_count; ++i){
+                        ghosts[i]->stop = false;
+                }
+            }
+        }
         break;
     case ALLEGRO_KEY_D:
         pacman_NextMove(pman, RIGHT);
         pacman_turn_head(pman, RIGHT);
         break;
+    case ALLEGRO_KEY_U:
+        pacman_turn_head(pman, LEFT);
+        break;
     case ALLEGRO_KEY_I:
         pacman_turn_head(pman, UP);
         break;
-    case ALLEGRO_KEY_J:
-        pacman_turn_head(pman, LEFT);
-        break;
-    case ALLEGRO_KEY_K:
+    case ALLEGRO_KEY_O:
         pacman_turn_head(pman, DOWN);
         break;
-    case ALLEGRO_KEY_L:
+    case ALLEGRO_KEY_P:
         pacman_turn_head(pman, RIGHT);
         break;
-    case ALLEGRO_KEY_C:
-        cheat_mode = !cheat_mode;
-        if (cheat_mode)
-            printf("cheat mode on\n");
-        else 
-            printf("cheat mode off\n");
+    case ALLEGRO_KEY_K:
+        for (int i = 0; i < ghost_count; ++i){
+                ghosts[i]->status = FLEE;
+                ghost_collided(ghosts[i]);
+        }
+        break;
+    case ALLEGRO_KEY_L:
+        if (modifier == ALLEGRO_KEYMOD_CTRL) {
+            cheat_mode = !cheat_mode;
+            pman->no_clip = !pman->no_clip;
+            if (cheat_mode)
+                printf("cheat mode on\n");
+            else 
+                printf("cheat mode off\n");
+        }
         break;
     case ALLEGRO_KEY_G:
         debug_mode = !debug_mode;

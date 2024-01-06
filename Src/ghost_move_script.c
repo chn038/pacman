@@ -38,6 +38,7 @@ static void ghost_move_script_FREEDOM_random(Ghost* ghost, Map* M) {
             counter = UP;
             break;
         default:
+            counter = NONE;
             break;
     }
 	static Directions proba[4]; // possible movement
@@ -245,6 +246,7 @@ void ghost_move_script_shortest_path(Ghost* ghost, Map* M, Pacman* pacman) {
 	// hint: Do shortest path sometime and do random move sometime.
 	if (!movetime(ghost->speed))
 		return;
+    if (ghost->stop) return;
     switch (ghost->status)
     {
     case BLOCKED:

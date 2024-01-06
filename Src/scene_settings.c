@@ -3,6 +3,8 @@
 // you, so this 2 files is like the default scene template.
 #include "scene_settings.h"
 #include "scene_after_game.h"
+#include "shared.h"
+#include <allegro5/allegro_primitives.h>
 
 // Variables and functions with 'static' prefix at the top level of a
 // source file is only accessible in that file ("file scope", also
@@ -20,13 +22,17 @@ static CheckBox music_mute;
 static SettingBar music_volume_bar;
 static CheckBox effect_mute;
 static SettingBar effect_volume_bar;
+static void show_dashboard();
+static bool dashboard = false;
+static int output;
 
 static void init(void){
+    dashboard = false;
+    output = 0;
     music_volume_bar = settingbar_create(SCREEN_W * 0.4, SCREEN_H * 0.3, SCREEN_W * 0.3, SCREEN_H * 0.1, al_map_rgb(255, 255, 255), al_map_rgb(0, 0, 0), current_music / max_music_volume);
     music_mute = checkbox_create(SCREEN_W * 0.8, SCREEN_H * 0.3, SCREEN_W * 0.1, SCREEN_H * 0.1, al_map_rgb(255, 255, 255), al_map_rgb(0, 0, 0), music_muted);
     effect_volume_bar = settingbar_create(SCREEN_W * 0.4, SCREEN_H * 0.6, SCREEN_W * 0.3, SCREEN_H * 0.1, al_map_rgb(255, 255, 255), al_map_rgb(0, 0, 0), current_effect / max_effect_volume);
     effect_mute = checkbox_create(SCREEN_W * 0.8, SCREEN_H * 0.6, SCREEN_W * 0.1, SCREEN_H * 0.1, al_map_rgb(255, 255, 255), al_map_rgb(0, 0, 0), effect_muted);
-    game_log("%.0f %.0f / %.0f %.0f", music_volume_bar.body.x, music_volume_bar.body.y, effect_volume_bar.body.x, effect_volume_bar.body.y);
 }
 
 static void draw(void){
@@ -103,6 +109,8 @@ static void draw(void){
 		ALLEGRO_ALIGN_CENTER,
 		"<S> to view Dashboard"
 	);
+    if (dashboard)
+        show_dashboard();
 }
 
 static void update_setting(){
@@ -124,7 +132,60 @@ static void update_setting(){
     }
 }
 
-static void on_key_down(int keycode) {
+static void show_dashboard(){
+    static FILE *save;
+    static char board[5][100];
+    save = fopen("Assets/Data/dashboard.txt", "r");
+    if (save) {
+        if (!output)
+            for (int i = 0; i < 5; ++i){
+                if (feof(save)) break;
+                fgets(board[i], 100, save);
+                output++;
+            }
+        fclose(save);
+    }
+    al_draw_filled_rectangle(SCREEN_W*0.2, SCREEN_H*0.2, 
+                SCREEN_W*0.8, SCREEN_H*0.8,
+                al_map_rgb(0, 0, 0) 
+    );
+    al_draw_rectangle(SCREEN_W*0.2, SCREEN_H*0.2, 
+                SCREEN_W*0.8, SCREEN_H*0.8,
+                al_map_rgb(255, 255, 255), 3
+    );
+    al_draw_text(menuFont,
+                 al_map_rgb(255, 255, 255),
+                 SCREEN_W*0.5, SCREEN_H*0.2 + 10,
+                 ALLEGRO_ALIGN_CENTER,
+                 "Dashboard"
+    );
+    int offset = 0;
+    static char index[12];
+    for (int i = 0; i < output; ++i){
+        sprintf(index, "%d", i + 1);
+        al_draw_text(menuFont,
+                     al_map_rgb(255, 255, 255),
+                     SCREEN_W*0.3, SCREEN_H*0.3 + offset,
+                     ALLEGRO_ALIGN_CENTER,
+                     index
+        );
+        al_draw_text(menuFont,
+                     al_map_rgb(255, 255, 255),
+                     SCREEN_W*0.5, SCREEN_H*0.3 + offset,
+                     ALLEGRO_ALIGN_CENTER,
+                     board[i]
+        );
+        offset += fontSize;
+    }
+    al_draw_text(menuFont,
+                 al_map_rgb(255, 255, 255),
+                 SCREEN_W*0.5, SCREEN_H*0.8 - 10 - fontSize,
+                 ALLEGRO_ALIGN_CENTER,
+                 "Press <S> to go back"
+    );
+}
+
+static void on_key_down(int keycode, int modifier) {
 	switch (keycode) {
 		case ALLEGRO_KEY_ENTER:
 			game_change_scene(scene_menu_create());
@@ -164,7 +225,10 @@ static void on_key_down(int keycode) {
             update_setting();
             break;
         case ALLEGRO_KEY_S:
-            game_change_scene(scene_after_game_create(false));
+            if (dashboard)
+                dashboard = false;
+            else
+                dashboard = true;
             break;
 		default:
 			break;
@@ -172,6 +236,7 @@ static void on_key_down(int keycode) {
 }
 
 static void on_mouse_move(int a, int mouse_x, int mouse_y, int f){
+    if (dashboard) return;
     if (pnt_in_rect(mouse_x, mouse_y, music_volume_bar.body)) {
         music_volume_bar.hovered = true;
         music_volume_bar.mouse = mouse_x;
@@ -195,6 +260,10 @@ static void on_mouse_move(int a, int mouse_x, int mouse_y, int f){
 }
 
 static void on_mouse_down(){
+    if (dashboard) {
+        dashboard = false;
+        return;
+    }
     update_checkbox(&music_mute);
     update_checkbox(&effect_mute);
     update_settingbar(&music_volume_bar);

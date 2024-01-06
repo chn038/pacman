@@ -22,7 +22,7 @@ typedef struct Pacman{
 	bitmapdata imgdata;
 	int speed;
 	bool powerUp; // *important: this boolean indicates if pacman is in power bean mode now.
-    bool cheat; // *Cheat mode
+    bool no_clip; // *Cheat mode
 	ALLEGRO_TIMER* death_anim_counter;
 	ALLEGRO_BITMAP* move_sprite;
 	ALLEGRO_BITMAP* die_sprite;

@@ -44,9 +44,18 @@ static bool pacman_movable(const Pacman* pacman, const Map* M, Directions target
         default:
             return false;
     }
-    if (!pacman->cheat && (is_wall_block(M, pacman->objData.Coord.x + dx, pacman->objData.Coord.y + dy) ||
-        is_room_block(M, pacman->objData.Coord.x + dx, pacman->objData.Coord.y + dy)))
+    if (pacman->objData.Coord.x + dx < 0 || 
+        pacman->objData.Coord.x + dx >= M->col_num ||
+        pacman->objData.Coord.y + dy < 0 ||
+        pacman->objData.Coord.y + dy >= M->row_num)
         return false;
+    if (!pacman->no_clip) {
+        if (is_wall_block(M, pacman->objData.Coord.x + dx, pacman->objData.Coord.y + dy) 
+            ||
+        is_room_block(M, pacman->objData.Coord.x + dx, pacman->objData.Coord.y + dy)) {
+            return false;
+        }
+    }
 	return true;
 }
 
@@ -67,7 +76,7 @@ Pacman* pacman_create(Pair_IntInt start_grid) {
 
 	pman->death_anim_counter = al_create_timer(1.0f / 8.0f);
 	pman->powerUp = false;
-    pman->cheat = false;
+    pman->no_clip = false;
 	/* load sprites */
 	pman->move_sprite = load_bitmap("Assets/pacman_move.png");
 	pman->die_sprite = load_bitmap("Assets/pacman_die.png");

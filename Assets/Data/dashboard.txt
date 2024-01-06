@@ -1,7 +1,11 @@
 FDSDD:  1880
-FUCK:  1820
+well:  1880
 FDSA:  1640
 DSA:  1640
 FDSA:  1570
+why:  1440
+fdsafdsrewq:  1380
+Nicely_Done:  1290
+fdsaw:  730
+fdsa:  720
 HELLO: 20
-WORLD: 10

@@ -9,19 +9,20 @@ ifeq ($(UNAME_S), Linux)
 endif
 #REVISE INCLUDE path if you have installed different version or install path.
 
-DBG = -g -Wall -Wextra 
+DBG = -g 
+WARNING = -Wall
 objects= main.o game.o ghost.o ghost_move_script.o map.o pacman_obj.o scene_game.o scene_menu.o graphical_object.o scene_settings.o shared.o utility.o scene_after_game.o
 
 all: pacman 
 
 pacman: $(objects)
-	$(CC) -lm $(CCFLAGS) $(DBG) -o pacman $^
+	$(CC) -lm $(CCFLAGS) $(DBG) $(WARNING) -o pacman $^
 
 %.o: $(SRC)/%.c $(SRC)/%.h
-	$(CC) -I$(INCLUDE) -c $< -o $@
+	$(CC) -I$(INCLUDE) $(DBG) $(WARNING) -c $< -o $@
 
 %.o: $(SRC)/%.c
-	$(CC) -I$(INCLUDE) -c $< -o $@
+	$(CC) -I$(INCLUDE) $(DBG) $(WARNING) -c $< -o $@
 
 clean:
 	rm pacman *.o

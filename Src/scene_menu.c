@@ -103,7 +103,7 @@ static void destroy() {
     al_destroy_bitmap(btnSettings.hovered_img);
 }
 
-static void on_key_down(int keycode) {
+static void on_key_down(int keycode, int modifier) {
 
 	switch (keycode) {
 		case ALLEGRO_KEY_ENTER:
