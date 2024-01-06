@@ -7,22 +7,30 @@ Luck can't save you.
 # description
 
 Key bindings:
+
 movements:
-    - W: change your direction and your facing to up.
-    - A: change your direction and your facing to left.
-    - S: change your direction and your facing to down.
-    - D: change your direction and your facing to right.
-    **Important**
-    - Q: let you stop moving.
-    - I: change your facing to up.
-    - J: change your facing to left.
-    - K: change your facing to down.
-    - L: change your facing to right.
+
+- W: change your direction and your facing to up.
+- A: change your direction and your facing to left.
+- S: change your direction and your facing to down.
+- D: change your direction and your facing to right.
+
+**Important**
+
+- Q: let you stop moving.
+- I: change your facing to up.      I
+- U: change your facing to left. U       P 
+- O: change your facing to down.      O
+- P: change your facing to right. 
+
 skills:
-    - E: activate power mode by one power beans. 
+
+- E: activate power mode by one power beans. 
 developer option:
-    - G: debug mode
-    - C: cheat mode
+- G: debug mode
+- C-L: cheat mode
+- K: force ghosts go back to cage
+- C-S: Freeze all ghosts
 
 Power mode:
     The activation of power mode will cost you one power bean you stored.Activate it multiple times won't increase the duration, only refresh it.
