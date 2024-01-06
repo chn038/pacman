@@ -18,9 +18,9 @@ movements:
 **Important**
 
 - Q: let you stop moving.
-- I: change your facing to up.      I
-- U: change your facing to left. U       P 
-- O: change your facing to down.      O
+- I: change your facing to down.   O
+- U: change your facing to left. U      P 
+- O: change your facing to up.       I
 - P: change your facing to right. 
 
 skills:

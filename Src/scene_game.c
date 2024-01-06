@@ -391,10 +391,10 @@ static void on_key_down(int key_code, int modifier) {
         pacman_turn_head(pman, LEFT);
         break;
     case ALLEGRO_KEY_I:
-        pacman_turn_head(pman, UP);
+        pacman_turn_head(pman, DOWN);
         break;
     case ALLEGRO_KEY_O:
-        pacman_turn_head(pman, DOWN);
+        pacman_turn_head(pman, UP);
         break;
     case ALLEGRO_KEY_P:
         pacman_turn_head(pman, RIGHT);
