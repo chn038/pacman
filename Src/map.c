@@ -67,6 +67,9 @@ Map* create_map(const char * filepath) {
         M->cage_grid.y = 11;
 		M->start_grid.x = 24;
         M->start_grid.y = 24;
+        M->max_ghost = 6;
+        M->initial_ghost = 1;
+        M->ghost_spawn_score = 300;
 	}
 	else {
 		game_log("Tries to open %s\n", filepath);
@@ -75,7 +78,7 @@ Map* create_map(const char * filepath) {
 			game_abort("error to open map file\n");
 			return NULL;
 		}
-		if(fscanf(pFile, "%d%d%d%d%d%d", &M->row_num, &M->col_num, &M->cage_grid.x, &M->cage_grid.y, &M->start_grid.x, &M->start_grid.y) != 6) {
+		if(fscanf(pFile, "%d%d%d%d%d%d%d%d%d", &M->row_num, &M->col_num, &M->cage_grid.x, &M->cage_grid.y, &M->start_grid.x, &M->start_grid.y, &M->max_ghost, &M->initial_ghost, &M->ghost_spawn_score) != 9) {
 			game_abort("Map format unmatched\n");
             fclose(pFile);
 			return NULL;

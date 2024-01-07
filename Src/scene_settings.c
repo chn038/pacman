@@ -21,18 +21,21 @@ static bool effect_muted = false;
 static CheckBox music_mute;
 static SettingBar music_volume_bar;
 static CheckBox effect_mute;
+static CheckBox large_map;
 static SettingBar effect_volume_bar;
 static void show_dashboard();
 static bool dashboard = false;
 static int output;
+bool is_large_map = false;
 
 static void init(void){
     dashboard = false;
     output = 0;
-    music_volume_bar = settingbar_create(SCREEN_W * 0.4, SCREEN_H * 0.3, SCREEN_W * 0.3, SCREEN_H * 0.1, al_map_rgb(255, 255, 255), al_map_rgb(0, 0, 0), current_music / max_music_volume);
-    music_mute = checkbox_create(SCREEN_W * 0.8, SCREEN_H * 0.3, SCREEN_W * 0.1, SCREEN_H * 0.1, al_map_rgb(255, 255, 255), al_map_rgb(0, 0, 0), music_muted);
-    effect_volume_bar = settingbar_create(SCREEN_W * 0.4, SCREEN_H * 0.6, SCREEN_W * 0.3, SCREEN_H * 0.1, al_map_rgb(255, 255, 255), al_map_rgb(0, 0, 0), current_effect / max_effect_volume);
-    effect_mute = checkbox_create(SCREEN_W * 0.8, SCREEN_H * 0.6, SCREEN_W * 0.1, SCREEN_H * 0.1, al_map_rgb(255, 255, 255), al_map_rgb(0, 0, 0), effect_muted);
+    music_volume_bar = settingbar_create(SCREEN_W * 0.4, SCREEN_H * 0.325, SCREEN_W * 0.3, SCREEN_H * 0.05, al_map_rgb(255, 255, 255), al_map_rgb(0, 0, 0), current_music / max_music_volume);
+    music_mute = checkbox_create(SCREEN_W * 0.825, SCREEN_H * 0.325, SCREEN_W * 0.05, SCREEN_H * 0.05, al_map_rgb(255, 255, 255), al_map_rgb(0, 0, 0), music_muted);
+    effect_volume_bar = settingbar_create(SCREEN_W * 0.4, SCREEN_H * 0.525, SCREEN_W * 0.3, SCREEN_H * 0.05, al_map_rgb(255, 255, 255), al_map_rgb(0, 0, 0), current_effect / max_effect_volume);
+    effect_mute = checkbox_create(SCREEN_W * 0.825, SCREEN_H * 0.525, SCREEN_W * 0.05, SCREEN_H * 0.05, al_map_rgb(255, 255, 255), al_map_rgb(0, 0, 0), effect_muted);
+    large_map = checkbox_create(SCREEN_W * 0.175, SCREEN_H * 0.725, SCREEN_W * 0.05, SCREEN_H * 0.05, al_map_rgb(255, 255, 255), al_map_rgb(0, 0, 0), is_large_map);
 }
 
 static void draw(void){
@@ -75,7 +78,7 @@ static void draw(void){
         menuFont, 
         al_map_rgb(255, 255, 255),
         SCREEN_W * 0.1,
-        SCREEN_H * 0.3,
+        SCREEN_H * 0.3375,
         ALLEGRO_ALIGN_LEFT,
         music_indicator
     );
@@ -86,18 +89,27 @@ static void draw(void){
         menuFont, 
         al_map_rgb(255, 255, 255),
         SCREEN_W * 0.1,
-        SCREEN_H * 0.6,
+        SCREEN_H * 0.5375,
         ALLEGRO_ALIGN_LEFT,
         effect_indicator
     );
     drawSettingBar(effect_volume_bar);
     drawCheckBox(effect_mute);
 
+    al_draw_text(
+        menuFont,
+        al_map_rgb(255, 255, 255),
+        SCREEN_W * 0.3, SCREEN_H * 0.7375,
+        ALLEGRO_ALIGN_LEFT,
+        "A really large map"
+    );
+    drawCheckBox(large_map);
+
 	al_draw_text(
 		menuFont,
 		al_map_rgb(255, 255, 255),
 		SCREEN_W/2.0,
-		SCREEN_H - 150,
+		SCREEN_H * 0.9 ,
 		ALLEGRO_ALIGN_CENTER,
 		"<ENTER> Back to menu"
 	);
@@ -105,7 +117,7 @@ static void draw(void){
 		menuFont,
 		al_map_rgb(255, 255, 255),
 		SCREEN_W/2.0,
-		SCREEN_H - 150 + fontSize,
+		SCREEN_H * 0.9 + fontSize,
 		ALLEGRO_ALIGN_CENTER,
 		"<S> to view Dashboard"
 	);
@@ -129,6 +141,11 @@ static void update_setting(){
     } else {
         effect_muted = false;
         effect_volume = current_effect;
+    }
+    if (large_map.checked){
+        is_large_map = true;
+    } else {
+        is_large_map = false;
     }
 }
 
@@ -257,6 +274,10 @@ static void on_mouse_move(int a, int mouse_x, int mouse_y, int f){
         effect_mute.hovered = true;
     else
         effect_mute.hovered = false;
+    if (pnt_in_rect(mouse_x, mouse_y, large_map.body))
+        large_map.hovered = true;
+    else 
+        large_map.hovered = false;
 }
 
 static void on_mouse_down(){
@@ -268,6 +289,7 @@ static void on_mouse_down(){
     update_checkbox(&effect_mute);
     update_settingbar(&music_volume_bar);
     update_settingbar(&effect_volume_bar);
+    update_checkbox(&large_map);
 
     update_setting();
 }

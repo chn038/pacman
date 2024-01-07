@@ -44,10 +44,10 @@ Type: Inky
     Mostly the ghosts you'll meet are them, they aren't really aware of you and most of the time won't come to you.
     I mean, they don't even want to catch you. They even slow down when you near them, so just don't get in their ways.
 Type: Pinky
+    They will hunt you till death, but they are also kinda scared by you. If you can't runaway, try to face them. They are also good runners so don't lose hope even if they keep chasing you, they will get tired one day.
+Type: Clyde
     They are a bit more cautious, and there are less of them too.
     They can sense you if you're too close, but they get tired easily so just be careful and you should be alright.
-Type: Clyde
-    They will hunt you till death, but they are also kinda scared by you. If you can't runaway, try to face them. They are also good runners so don't lose hope even if they keep chasing you, they will get tired one day.
 Type: Blinky
     They are deadly, run as fast as you can. They can sense you no matter where you are, and their speed is so incredibly fast that you can sense them even if you can't see them. Luckily, they get tired easily but they also regen fast.
 

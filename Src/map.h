@@ -13,6 +13,9 @@ typedef struct Map{
 	int wallnum;
 	int beansNum;
 	int beansCount;
+    int max_ghost;
+    int initial_ghost;
+    int ghost_spawn_score;
     Pair_IntInt cage_grid;
     Pair_IntInt start_grid;
 	char** map;

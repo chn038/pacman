@@ -7,5 +7,6 @@
 #include <stdio.h>
 
 Scene scene_settings_create(void);
+extern bool is_large_map;
 
 #endif

@@ -8,6 +8,7 @@
 #include "pacman_obj.h"
 #include "ghost.h"
 #include "map.h"
+#include "scene_menu.h"
 
 Scene scene_main_create(void);
 int64_t get_power_up_timer_tick();

@@ -20,12 +20,14 @@ static void destroy();
 static void append_name();
 static void insert(int keystroke, int modifier);
 static int compare(const void* a, const void* b);
-bool written = false;
+static bool written;
 
 static void init(){
     length = 0;
     output = 0;
+    written = false;
     memset(name, '\0', sizeof(name));
+    memset(board, '\0', sizeof(board));
     dashboard = fopen("Assets/Data/dashboard.txt", "r");
     if (!dashboard){
         game_log("Failed to load dashboard, create new one");
@@ -381,6 +383,11 @@ static void insert(int keystroke, int modifier){
 }
 
 static void destroy(){
+    if (!written)
+        for (int i = 0; i < output; ++i){
+            fwrite(board[i], sizeof(char), strlen(board[i]), dashboard);
+            printf("%s", board[i]);
+        }
     if (dashboard)
         fclose(dashboard);
 }

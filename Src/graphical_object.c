@@ -1,4 +1,5 @@
 #define _CRT_SECURE_NO_WARNINGS
+#define board_color al_map_rgb(255, 255, 255)
 
 #include "graphical_object.h"
 #include "utility.h"
@@ -8,6 +9,7 @@
 #include <string.h>
 
 const int board = 3;
+const int padding = 10;
 
 Button button_create(float x, float y, float w, float h, const char* default_image_path, const char* hovered_image_path) {
 
@@ -75,7 +77,7 @@ void update_settingbar(SettingBar* bar){
 }
 
 void drawSettingBar(SettingBar bar){
-    al_draw_filled_rectangle(bar.body.x, bar.body.y, bar.body.x + bar.body.w * bar.percent, bar.body.y + bar.body.h, bar.lit_color);
+    al_draw_filled_rectangle(bar.body.x, bar.body.y, bar.body.x + bar.body.w * bar.percent, bar.body.y + bar.body.h, board_color);
     al_draw_filled_rectangle(bar.body.x + bar.mouse, bar.body.y, bar.body.x + bar.body.w, bar.body.y + bar.body.h, bar.default_color);
     al_draw_rectangle(bar.body.x, bar.body.y, bar.body.x + bar.body.w, bar.body.y + bar.body.h, bar.lit_color, board);
     return;
@@ -101,8 +103,8 @@ void drawCheckBox(CheckBox box){
         color = box.checked_color;
     else 
         color = box.default_color;
-    al_draw_filled_rectangle(box.body.x, box.body.y, box.body.x + box.body.w, box.body.y + box.body.h, color);
-    al_draw_rectangle(box.body.x, box.body.y, box.body.x + box.body.w, box.body.y + box.body.h, box.checked_color, board);
+    al_draw_filled_rectangle(box.body.x + padding, box.body.y + padding, box.body.x + box.body.w - padding, box.body.y + box.body.h - padding, color);
+    al_draw_rectangle(box.body.x, box.body.y, box.body.x + box.body.w, box.body.y + box.body.h, board_color, board);
     return;
 }
 
@@ -111,3 +113,5 @@ void update_checkbox(CheckBox* box){
     box->checked = !box->checked;
     return;
 }
+
+#undef board_color

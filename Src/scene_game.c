@@ -16,7 +16,6 @@
 extern const uint32_t GAME_TICK_CD;
 extern uint32_t GAME_TICK;
 extern ALLEGRO_TIMER* game_tick_timer;
-int MAX_GHOST_NUM = 100; 
 Pair_IntInt vision = {8, 3};
 Pair_IntInt range = {16, 16};
 uint32_t game_main_Score = 0;
@@ -58,7 +57,7 @@ static void init(void) {
     ghost_count = 0;
     stop_moving = false;
 
-	basic_map = create_map("Assets/Map/map_main.txt");
+	basic_map = create_map(map_file_path);
 	if (!basic_map) {
         game_log("Error loading map, use default one.");
         basic_map = create_map(0);
@@ -80,12 +79,12 @@ static void init(void) {
 		game_abort("error on creating pacamn\n");
 	}
 	
-	ghosts = (Ghost**)malloc(sizeof(Ghost*) * MAX_GHOST_NUM);
+	ghosts = (Ghost**)malloc(sizeof(Ghost*) * basic_map->max_ghost);
 	if(!ghosts){
 		game_log("We haven't create any ghosts!\n");
 	}
 	else {
-        while (ghost_count < 5) {
+        while (ghost_count < basic_map->initial_ghost) {
             ghosts[ghost_count] = ghost_create(Inky, basic_map->cage_grid);  
             if (!ghosts[ghost_count])
                 game_abort("error creating ghost\n");
@@ -194,9 +193,9 @@ static void status_update(void) {
         }
 	}
 
-    if (ghost_count == MAX_GHOST_NUM) return;
+    if (ghost_count == basic_map->max_ghost) return;
 
-    float diff = MAX_GHOST_NUM * 0.1;
+    float diff = basic_map->max_ghost * 0.1;
     GhostType newGhost;
     if (ghost_count >= diff * 8)
         newGhost = Blinky;
@@ -207,7 +206,7 @@ static void status_update(void) {
     else
         newGhost = Inky;
 
-    if (game_main_Score > ghost_count * 500){
+    if (game_main_Score > ghost_count * basic_map->ghost_spawn_score){
         ghosts[ghost_count] = ghost_create(newGhost, basic_map->cage_grid);
         if (!ghosts[ghost_count]){
             game_log("Failed to create ghost %d", ghost_count);

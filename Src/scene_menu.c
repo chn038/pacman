@@ -18,6 +18,7 @@ static ALLEGRO_BITMAP* gameTitle = NULL;
 static ALLEGRO_SAMPLE_ID menuBGM;
 static int gameTitleW ;
 static int gameTitleH ;
+char map_file_path[100];
 
 // [HACKATHON 3]
 // TARGET : use a clickable button to enter setting scene.
@@ -39,6 +40,11 @@ static void init() {
 	gameTitleH = al_get_bitmap_height(gameTitle);
 	stop_bgm(menuBGM);
 	menuBGM = play_bgm(themeMusic, music_volume);
+    if (is_large_map){
+        strcpy(map_file_path, "Assets/Map/map_main.txt");
+    } else {
+        strcpy(map_file_path, "Assets/Map/map_nthu.txt");
+    }
 
 }
 
